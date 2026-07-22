@@ -1,0 +1,133 @@
+
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+
+.header {
+    position: relative;
+    top: -18px;
+    left: 0;
+    width: 100%;
+    padding: 20px 8%;
+    background-color: #010745; 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    z-index: 1000;
+}
+
+
+.logo {
+    font-size: 25px;
+    color: #fff; 
+    text-decoration: none;
+    font-weight: bold;
+}
+
+
+.navbar .nav-link {
+    font-size: 18px;
+    color: #fff; 
+    text-decoration: none;
+    font-weight: 500;
+    margin: 0 20px;
+    transition: color 0.3s ease;
+}
+
+
+.navbar .about-link {
+    color: black !important; 
+    font-weight: bold;
+}
+
+
+.navbar .nav-link:not(.about-link):hover {
+    color: black; 
+}
+
+
+.navbar .about-link:hover {
+    color: #fff; 
+}
+
+
+.social-media {
+    display: flex;
+    justify-content: space-between;
+    width: 150px;
+}
+
+.social-media a {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 40px;
+    height: 40px;
+    background: transparent;
+    border: 2px solid #fff;
+    text-decoration: none;
+    border-radius: 50%;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.social-media a i {
+    font-size: 20px;
+    color: #fff;
+}
+
+.social-media a:hover {
+    background-color: #eaeaea;
+    border-color: #eaeaea;
+}
+
+.social-media a i:hover {
+    color: #010745;
+}
+.about-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    gap: 20px;
+}
+
+.person {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    width: 48%;
+    text-align: center;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.person:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.person img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    margin-bottom: 15px;
+    border: 2px solid #010745;
+}
+
+.person h2 {
+    margin: 10px 0;
+    font-size: 1.5em;
+    color: #010745;
+}
+
+.person p {
+    font-size: 1em;
+    line-height: 1.5;
+}
+

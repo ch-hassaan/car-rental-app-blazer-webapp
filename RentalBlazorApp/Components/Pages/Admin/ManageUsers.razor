@@ -1,0 +1,104 @@
+@page "/admin/users"
+@layout Layout.AdminLayout
+@inject AuthService Auth
+
+<PageTitle>Manage Users — PDM Rentals Admin</PageTitle>
+
+<div class="admin-topbar">
+    <div>
+        <div class="admin-topbar-title">Manage Users</div>
+        <div class="admin-topbar-sub">View accounts, roles, and access levels</div>
+    </div>
+</div>
+
+<div class="admin-table-card">
+    <div class="admin-table-header">
+        <div class="admin-table-title">Registered Accounts (@users.Count)</div>
+    </div>
+    
+    <div style="overflow-x:auto;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Joined Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var u in users.OrderByDescending(x => x.CreatedAt))
+                {
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="admin-user-avatar" style="width:32px; height:32px; font-size:0.75rem;">
+                                    @GetInitials(u.FullName)
+                                </div>
+                                <div style="font-weight:600;">@u.FullName</div>
+                            </div>
+                        </td>
+                        <td>@u.Email</td>
+                        <td>
+                            <span class="status-badge @(u.Role == "Admin" ? "status-rented" : "status-available")">
+                                <i class='bx @(u.Role == "Admin" ? "bx-shield" : "bx-user")' ></i> @u.Role
+                            </span>
+                        </td>
+                        <td style="font-size:0.8rem;color:#94A3B8;">@u.CreatedAt.ToString("MMM dd, yyyy")</td>
+                        <td>
+                            @if (u.Email != "admin@pdmrentals.com") // Protect super admin
+                            {
+                                <div class="d-flex gap-1 flex-wrap">
+                                    @if (u.Role != "Admin")
+                                    {
+                                        <button class="admin-btn-sm blue" @onclick='() => UpdateRole(u.Id, "Admin")'>
+                                            <i class='bx bx-up-arrow-circle'></i> Make Admin
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="admin-btn-sm amber" @onclick='() => UpdateRole(u.Id, "Customer")'>
+                                            <i class='bx bx-down-arrow-circle'></i> Revoke Admin
+                                        </button>
+                                    }
+                                    <button class="admin-btn-sm red" @onclick="() => DeleteUser(u.Id)">
+                                        <i class='bx bx-trash'></i>
+                                    </button>
+                                </div>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@code {
+    private List<User> users = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await Auth.GetAllUsersAsync();
+    }
+
+    private string GetInitials(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        var parts = name.Split(' ');
+        return parts.Length >= 2 ? $"{parts[0][0]}{parts[1][0]}" : $"{parts[0][0]}";
+    }
+
+    private async Task UpdateRole(string id, string role)
+    {
+        await Auth.UpdateUserRoleAsync(id, role);
+        users = await Auth.GetAllUsersAsync();
+    }
+
+    private async Task DeleteUser(string id)
+    {
+        await Auth.DeleteUserAsync(id);
+        users = await Auth.GetAllUsersAsync();
+    }
+}

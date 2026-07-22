@@ -1,0 +1,887 @@
+@page "/"
+@layout Layout.EmptyLayout
+
+<PageTitle>PDM Rentals — Drive Beyond Ordinary</PageTitle>
+
+<style>
+
+
+:root {
+    --navy: #050D2D;
+    --navy-mid: #0A1854;
+    --accent: #2563EB;
+    --accent-light: #60A5FA;
+}
+
+body { background: var(--navy); overflow-x: hidden; }
+
+
+.home-nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    height: 76px;
+    padding: 0 5%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: transparent;
+    transition: background 0.6s ease, backdrop-filter 0.6s ease, border-color 0.6s ease;
+    border-bottom: 1px solid transparent;
+}
+.home-nav.scrolled {
+    background: rgba(5,13,45,0.9);
+    backdrop-filter: blur(28px) saturate(2);
+    border-color: rgba(255,255,255,0.07);
+    box-shadow: 0 4px 32px rgba(5,13,45,0.4);
+}
+.home-nav-brand {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.6rem; font-weight: 800;
+    color: white; text-decoration: none;
+    letter-spacing: -0.04em;
+}
+.home-nav-brand span { color: var(--accent-light); }
+.home-nav-links {
+    display: flex; gap: 2.5rem;
+    list-style: none; margin: 0; padding: 0;
+}
+.home-nav-links a {
+    font-size: 0.88rem; font-weight: 500;
+    color: rgba(255,255,255,0.75);
+    text-decoration: none;
+    position: relative;
+    letter-spacing: 0.02em;
+    transition: color 0.2s;
+}
+.home-nav-links a::after {
+    content: '';
+    position: absolute; bottom: -4px; left: 0;
+    width: 0; height: 1.5px;
+    background: var(--accent-light);
+    border-radius: 99px;
+    transition: width 0.3s ease;
+}
+.home-nav-links a:hover { color: white; }
+.home-nav-links a:hover::after { width: 100%; }
+.home-nav-right { display: flex; align-items: center; gap: 1rem; }
+.home-nav-cta {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 0.85rem; font-weight: 600;
+    background: var(--accent);
+    color: white;
+    padding: 0.55rem 1.4rem;
+    border-radius: 8px;
+    text-decoration: none;
+    transition: all 0.3s;
+    letter-spacing: 0.01em;
+}
+.home-nav-cta:hover {
+    background: var(--accent-light);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(37,99,235,0.4);
+}
+
+
+.hero {
+    position: relative;
+    height: 100vh;
+    min-height: 700px;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+}
+
+
+.hero-bg {
+    position: absolute; inset: 0;
+    background-image: url('https://images.unsplash.com/photo-1544636331-e26879cd4d9b?w=3000&q=85');
+    background-size: cover;
+    background-position: center 40%;
+    transform: scale(1.05);
+    animation: heroBgZoom 14s ease-out forwards;
+    filter: saturate(0.8) brightness(0.7);
+}
+
+
+.hero-overlay {
+    position: absolute; inset: 0;
+    background:
+        linear-gradient(100deg,
+            rgba(5,13,45,0.92) 0%,
+            rgba(5,13,45,0.75) 40%,
+            rgba(5,13,45,0.15) 70%,
+            transparent 100%),
+        linear-gradient(to top,
+            rgba(5,13,45,0.8) 0%,
+            transparent 50%);
+}
+
+
+.hero-glow {
+    position: absolute;
+    bottom: -10%; left: -5%;
+    width: 60%; height: 60%;
+    background: radial-gradient(ellipse at center, rgba(37,99,235,0.18) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+.hero-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    padding: 0 5%;
+    padding-top: 76px;
+    max-width: 800px;
+}
+
+.hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 0.65rem;
+    font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--accent-light);
+    margin-bottom: 1.75rem;
+    opacity: 0; animation: slideUpFade 0.8s ease 0.2s forwards;
+}
+.hero-eyebrow-line {
+    width: 28px; height: 1.5px;
+    background: var(--accent-light);
+    border-radius: 2px;
+}
+
+.hero-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(3.25rem, 7vw, 6.5rem);
+    font-weight: 900;
+    color: white;
+    line-height: 1.0;
+    letter-spacing: -0.05em;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: slideUpFade 0.9s ease 0.4s forwards;
+}
+.hero-title .accent-word {
+    background: linear-gradient(120deg, var(--accent-light) 30%, #93C5FD 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    display: block;
+}
+
+.hero-subtitle {
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: rgba(255,255,255,0.65);
+    max-width: 480px;
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: slideUpFade 0.9s ease 0.6s forwards;
+    font-weight: 400;
+}
+
+.hero-actions {
+    display: flex; align-items: center; gap: 1.25rem;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: slideUpFade 0.9s ease 0.78s forwards;
+}
+
+.hero-btn-solid {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.92rem; font-weight: 600;
+    padding: 1rem 2.2rem;
+    background: var(--accent);
+    color: white; border-radius: 10px;
+    text-decoration: none;
+    letter-spacing: 0.01em;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 4px 24px rgba(37,99,235,0.35);
+    position: relative; overflow: hidden;
+}
+.hero-btn-solid::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+    transform: translateX(-100%);
+    transition: transform 0.5s;
+}
+.hero-btn-solid:hover {
+    background: #3B82F6; color: white;
+    transform: translateY(-3px);
+    box-shadow: 0 12px 36px rgba(37,99,235,0.5);
+}
+.hero-btn-solid:hover::after { transform: translateX(100%); }
+
+.hero-btn-ghost {
+    display: inline-flex; align-items: center; gap: 0.6rem;
+    font-size: 0.92rem; font-weight: 600;
+    padding: 1rem 2rem;
+    color: rgba(255,255,255,0.88);
+    border: 1.5px solid rgba(255,255,255,0.28);
+    border-radius: 10px;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+.hero-btn-ghost:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: rgba(255,255,255,0.7);
+    color: white;
+}
+
+
+.hero-stats-row {
+    display: flex; align-items: center; gap: 2.5rem;
+    margin-top: 3.5rem;
+    padding-top: 2.5rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    opacity: 0;
+    animation: slideUpFade 0.9s ease 1s forwards;
+}
+.hero-stat-val {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2rem; font-weight: 800;
+    color: white; line-height: 1;
+}
+.hero-stat-lbl {
+    font-size: 0.72rem; font-weight: 600;
+    color: rgba(255,255,255,0.4);
+    text-transform: uppercase; letter-spacing: 0.1em;
+    margin-top: 5px;
+}
+
+
+.hero-scroll-hint {
+    position: absolute;
+    bottom: 2rem; left: 50%;
+    transform: translateX(-50%);
+    display: flex; flex-direction: column; align-items: center;
+    gap: 0.5rem;
+    color: rgba(255,255,255,0.3);
+    font-size: 0.62rem; letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0; animation: slideUpFade 1s ease 1.4s forwards;
+    text-decoration: none;
+}
+.scroll-mouse {
+    width: 22px; height: 34px;
+    border: 1.5px solid rgba(255,255,255,0.3);
+    border-radius: 11px;
+    position: relative;
+}
+.scroll-mouse::after {
+    content: '';
+    position: absolute;
+    top: 5px; left: 50%; transform: translateX(-50%);
+    width: 3px; height: 6px;
+    background: rgba(255,255,255,0.5);
+    border-radius: 2px;
+    animation: scrollDot 2.2s ease-in-out infinite;
+}
+
+
+.stats-band {
+    background: white;
+    padding: 0;
+    border-bottom: 1px solid rgba(5,13,45,0.07);
+}
+.stats-band-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+.stat-cell {
+    padding: 2.75rem 2rem;
+    text-align: center;
+    border-right: 1px solid rgba(5,13,45,0.07);
+    transition: background 0.3s;
+}
+.stat-cell:last-child { border-right: none; }
+.stat-cell:hover { background: #F8FAFC; }
+.stat-cell-icon {
+    font-size: 2rem; color: var(--accent);
+    margin-bottom: 0.75rem; display: block;
+}
+.stat-cell-num {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.5rem; font-weight: 900;
+    color: var(--navy); line-height: 1;
+    margin-bottom: 0.4rem;
+}
+.stat-cell-lbl {
+    font-size: 0.8rem; color: #64748B;
+    font-weight: 500; letter-spacing: 0.02em;
+}
+
+
+.fleet-showcase {
+    padding: 8rem 0;
+    background: #F9FAFB;
+}
+.section-head { text-align: center; margin-bottom: 4.5rem; }
+.section-eyebrow-home {
+    display: inline-block;
+    font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+}
+.section-heading {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800; color: var(--navy);
+    letter-spacing: -0.04em; margin-bottom: 1rem;
+}
+.section-sub {
+    font-size: 1rem; color: #64748B;
+    max-width: 460px; margin: 0 auto;
+    line-height: 1.8;
+}
+
+
+.fleet-bento {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 240px);
+    gap: 1.25rem;
+}
+.fleet-bento-card {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    text-decoration: none;
+    display: block;
+    cursor: pointer;
+}
+.fleet-bento-card.span-2 { grid-column: span 2; }
+.fleet-bento-card img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s cubic-bezier(0.4,0,0.2,1);
+    filter: brightness(0.82);
+}
+.fleet-bento-card:hover img {
+    transform: scale(1.06);
+    filter: brightness(0.7);
+}
+.fleet-bento-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, rgba(5,13,45,0.88) 0%, transparent 55%);
+    transition: background 0.4s;
+}
+.fleet-bento-card:hover .fleet-bento-overlay {
+    background: linear-gradient(to top, rgba(5,13,45,0.94) 0%, rgba(5,13,45,0.1) 70%);
+}
+.fleet-bento-content {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    padding: 1.75rem 1.5rem 1.5rem;
+}
+.fleet-bento-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.25rem; font-weight: 700;
+    color: white; margin-bottom: 0.35rem;
+}
+.fleet-bento-desc {
+    font-size: 0.8rem; color: rgba(255,255,255,0.6);
+    margin-bottom: 0.75rem;
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.4s, opacity 0.4s;
+    opacity: 0;
+}
+.fleet-bento-card:hover .fleet-bento-desc {
+    max-height: 60px; opacity: 1;
+}
+.fleet-bento-arrow {
+    display: inline-flex; align-items: center; gap: 0.35rem;
+    font-size: 0.75rem; font-weight: 700;
+    color: #93C5FD; text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transform: translateX(0);
+    transition: transform 0.3s;
+}
+.fleet-bento-card:hover .fleet-bento-arrow { transform: translateX(6px); }
+
+
+.why-section {
+    padding: 8rem 0;
+    background: white;
+}
+.why-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.75rem;
+    margin-top: 4rem;
+}
+.why-card {
+    padding: 2.75rem 2.25rem;
+    border-radius: 20px;
+    border: 1px solid rgba(5,13,45,0.07);
+    background: #F8FAFC;
+    position: relative; overflow: hidden;
+    transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+.why-card::after {
+    content: '';
+    position: absolute; top: 0; left: 0;
+    width: 3px; height: 0;
+    background: linear-gradient(to bottom, var(--accent), #93C5FD);
+    transition: height 0.4s ease;
+}
+.why-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 24px 64px rgba(5,13,45,0.1);
+    border-color: rgba(37,99,235,0.18);
+    background: white;
+}
+.why-card:hover::after { height: 100%; }
+.why-icon {
+    width: 60px; height: 60px;
+    background: rgba(37,99,235,0.08);
+    border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.65rem; color: var(--accent);
+    margin-bottom: 1.75rem;
+    transition: background 0.3s;
+}
+.why-card:hover .why-icon { background: rgba(37,99,235,0.15); }
+.why-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.15rem; font-weight: 700;
+    color: var(--navy); margin-bottom: 0.75rem;
+}
+.why-desc {
+    font-size: 0.875rem;
+    color: #64748B; line-height: 1.8; margin: 0;
+}
+
+
+.reviews-section {
+    padding: 8rem 0;
+    background: var(--navy);
+    position: relative;
+    overflow: hidden;
+}
+.reviews-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 50% at 50% 0%, rgba(37,99,235,0.15), transparent);
+    pointer-events: none;
+}
+.reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    margin-top: 4rem;
+}
+.review-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 20px;
+    padding: 2.25rem;
+    transition: all 0.35s;
+}
+.review-card:hover {
+    background: rgba(255,255,255,0.07);
+    border-color: rgba(255,255,255,0.16);
+    transform: translateY(-6px);
+}
+.review-stars {
+    color: #FBBF24;
+    font-size: 0.9rem;
+    margin-bottom: 1.25rem;
+    letter-spacing: 0.1em;
+}
+.review-text {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.85;
+    margin-bottom: 1.75rem;
+    font-style: italic;
+}
+.review-author {
+    display: flex; align-items: center; gap: 0.85rem;
+}
+.review-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), #93C5FD);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem; font-weight: 700;
+    color: white;
+    flex-shrink: 0;
+}
+.review-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 0.92rem; font-weight: 700;
+    color: white;
+}
+.review-car {
+    font-size: 0.75rem; color: rgba(255,255,255,0.4);
+    margin-top: 2px;
+}
+
+
+.cta-section {
+    padding: 8rem 0;
+    background: #F9FAFB;
+    text-align: center;
+    position: relative;
+}
+.cta-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 60% at 50% 50%, rgba(37,99,235,0.06), transparent);
+    pointer-events: none;
+}
+.cta-eyebrow {
+    display: inline-block;
+    font-size: 0.7rem; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1.25rem;
+}
+.cta-heading {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(2.25rem, 4.5vw, 3.75rem);
+    font-weight: 900; color: var(--navy);
+    letter-spacing: -0.04em; margin-bottom: 1.5rem;
+    line-height: 1.05;
+}
+.cta-sub {
+    font-size: 1.05rem; color: #64748B;
+    max-width: 460px; margin: 0 auto 2.75rem;
+    line-height: 1.8;
+}
+
+
+.home-footer-bar {
+    background: var(--navy);
+    padding: 1.75rem 5%;
+    display: flex; justify-content: space-between; align-items: center;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-size: 0.8rem; color: rgba(255,255,255,0.35);
+    gap: 1rem; flex-wrap: wrap;
+}
+.home-footer-links-row { display: flex; gap: 1.75rem; flex-wrap: wrap; }
+.home-footer-links-row a {
+    color: rgba(255,255,255,0.4);
+    text-decoration: none; font-size: 0.8rem;
+    transition: color 0.2s;
+}
+.home-footer-links-row a:hover { color: white; }
+
+
+@@keyframes heroBgZoom {
+    from { transform: scale(1.05); }
+    to   { transform: scale(1); }
+}
+@@keyframes slideUpFade {
+    from { opacity: 0; transform: translateY(32px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+@@keyframes scrollDot {
+    0%, 100% { transform: translate(-50%, 0); opacity: 0.7; }
+    50%       { transform: translate(-50%, 12px); opacity: 0.2; }
+}
+
+
+@@media (max-width: 991px) {
+    .home-nav-links { display: none; }
+    .fleet-bento { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+    .fleet-bento-card.span-2 { grid-column: span 1; }
+    .why-grid { grid-template-columns: 1fr; }
+    .stats-band-grid { grid-template-columns: repeat(2, 1fr); }
+    .reviews-grid { grid-template-columns: 1fr; }
+}
+@@media (max-width: 640px) {
+    .fleet-bento { grid-template-columns: 1fr; }
+    .stats-band-grid { grid-template-columns: 1fr 1fr; }
+    .hero-stats-row { gap: 1.5rem; flex-wrap: wrap; }
+    .home-footer-bar { flex-direction: column; text-align: center; }
+}
+</style>
+
+
+<nav class="home-nav" id="home-nav">
+    <a href="/" class="home-nav-brand">PDM<span> Rentals</span></a>
+    <ul class="home-nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/categories">Fleet</a></li>
+        <li><a href="/about">About</a></li>
+        <li><a href="/contact">Contact</a></li>
+    </ul>
+    <div class="home-nav-right">
+        <a href="/categories" class="home-nav-cta">
+            Book Now <i class='bx bx-right-arrow-alt'></i>
+        </a>
+    </div>
+</nav>
+
+
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-overlay"></div>
+    <div class="hero-glow"></div>
+
+    <div class="hero-content">
+        <div class="hero-eyebrow">
+            <div class="hero-eyebrow-line"></div>
+            Premium Car Rental — Pakistan
+        </div>
+
+        <h1 class="hero-title">
+            Drive Beyond<br>
+            <span class="accent-word">Ordinary.</span>
+        </h1>
+
+        <p class="hero-subtitle">
+            A curated fleet of luxury vehicles, performance machines, and everyday drives —
+            seamlessly booked, impeccably maintained, and delivered with class.
+        </p>
+
+        <div class="hero-actions">
+            <a href="/categories" class="hero-btn-solid">
+                Explore Fleet <i class='bx bx-right-arrow-alt'></i>
+            </a>
+            <a href="/about" class="hero-btn-ghost">
+                Our Story
+            </a>
+        </div>
+
+        <div class="hero-stats-row">
+            <div>
+                <div class="hero-stat-val">500+</div>
+                <div class="hero-stat-lbl">Vehicles</div>
+            </div>
+            <div style="width:1px; height:40px; background:rgba(255,255,255,0.12);"></div>
+            <div>
+                <div class="hero-stat-val">10K+</div>
+                <div class="hero-stat-lbl">Customers</div>
+            </div>
+            <div style="width:1px; height:40px; background:rgba(255,255,255,0.12);"></div>
+            <div>
+                <div class="hero-stat-val">4.9★</div>
+                <div class="hero-stat-lbl">Rating</div>
+            </div>
+            <div style="width:1px; height:40px; background:rgba(255,255,255,0.12);"></div>
+            <div>
+                <div class="hero-stat-val">24/7</div>
+                <div class="hero-stat-lbl">Support</div>
+            </div>
+        </div>
+    </div>
+
+    <a href="#stats" class="hero-scroll-hint" aria-label="Scroll down">
+        <div class="scroll-mouse"></div>
+        <span>Scroll</span>
+    </a>
+</section>
+
+
+<section id="stats">
+    <div class="stats-band">
+        <div class="stats-band-grid container">
+            <div class="stat-cell reveal">
+                <i class='bx bx-car stat-cell-icon'></i>
+                <div class="stat-cell-num">500+</div>
+                <div class="stat-cell-lbl">Vehicles Available</div>
+            </div>
+            <div class="stat-cell reveal delay-100">
+                <i class='bx bx-user-check stat-cell-icon'></i>
+                <div class="stat-cell-num">10,000+</div>
+                <div class="stat-cell-lbl">Happy Customers</div>
+            </div>
+            <div class="stat-cell reveal delay-200">
+                <i class='bx bx-support stat-cell-icon'></i>
+                <div class="stat-cell-num">24/7</div>
+                <div class="stat-cell-lbl">Customer Support</div>
+            </div>
+            <div class="stat-cell reveal delay-300">
+                <i class='bx bx-star stat-cell-icon'></i>
+                <div class="stat-cell-num">4.9 / 5</div>
+                <div class="stat-cell-lbl">Average Rating</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="fleet-showcase">
+    <div class="container">
+        <div class="section-head reveal">
+            <div class="section-eyebrow-home">Our Fleet</div>
+            <h2 class="section-heading">Find Your Perfect Drive</h2>
+            <p class="section-sub">From executive sedans to electric performance — every category, every occasion.</p>
+        </div>
+
+        <div class="fleet-bento reveal">
+            
+            <a href="/luxurysedans" class="fleet-bento-card span-2">
+                <img src="https://images.unsplash.com/photo-1617531653332-bd46c24f2068?w=1400&q=80" alt="Luxury Sedans">
+                <div class="fleet-bento-overlay"></div>
+                <div class="fleet-bento-content">
+                    <div class="fleet-bento-title">Luxury Sedans</div>
+                    <div class="fleet-bento-desc">The pinnacle of refined comfort.</div>
+                    <div class="fleet-bento-arrow">Explore <i class='bx bx-right-arrow-alt'></i></div>
+                </div>
+            </a>
+
+            
+            <a href="/opulence" class="fleet-bento-card">
+                <img src="https://www.topgear.com/sites/default/files/images/news-article/2020/11/86d1c7742a1e093a83487debca97eecd/20c0535_179.jpg" alt="Opulence">
+                <div class="fleet-bento-overlay"></div>
+                <div class="fleet-bento-content">
+                    <div class="fleet-bento-title">Opulence</div>
+                    <div class="fleet-bento-desc">For the truly discerning.</div>
+                    <div class="fleet-bento-arrow">Explore <i class='bx bx-right-arrow-alt'></i></div>
+                </div>
+            </a>
+
+            
+            <a href="/suvs" class="fleet-bento-card">
+                <img src="https://larte-design.com/storage/app/media/blog/cadillac-escalade-review/images/cadillac-escalade-with-body-kit-by-larte-design-studio.webp" alt="SUVs">
+                <div class="fleet-bento-overlay"></div>
+                <div class="fleet-bento-content">
+                    <div class="fleet-bento-title">SUVs</div>
+                    <div class="fleet-bento-desc">Family & adventure.</div>
+                    <div class="fleet-bento-arrow">Explore <i class='bx bx-right-arrow-alt'></i></div>
+                </div>
+            </a>
+
+            
+            <a href="/electric" class="fleet-bento-card">
+                <img src="https://images.carexpert.com.au/crop/1200/630/app/uploads/2024/01/BMW-i4-eDrive35_HERO-16x9-1.jpg" alt="Electric">
+                <div class="fleet-bento-overlay"></div>
+                <div class="fleet-bento-content">
+                    <div class="fleet-bento-title">Electric</div>
+                    <div class="fleet-bento-desc">The future, now.</div>
+                    <div class="fleet-bento-arrow">Explore <i class='bx bx-right-arrow-alt'></i></div>
+                </div>
+            </a>
+
+            
+            <a href="/convertibles" class="fleet-bento-card span-2">
+                <img src="https://www.mini.co.uk/en_GB/home/mini-news/convertible-seaside-edition/jcr:content/main/par/product_editorial_10/productEditorialPar/editorial_fullwidth__1716008769/leftPar/image_item/damImage.wide.1350w.j_1674060008963.jpg" alt="Convertibles">
+                <div class="fleet-bento-overlay"></div>
+                <div class="fleet-bento-content">
+                    <div class="fleet-bento-title">Convertibles</div>
+                    <div class="fleet-bento-desc">Open roads, open skies.</div>
+                    <div class="fleet-bento-arrow">Explore <i class='bx bx-right-arrow-alt'></i></div>
+                </div>
+            </a>
+        </div>
+
+        <div class="text-center mt-5 reveal">
+            <a href="/categories" class="hero-btn-solid" style="background: var(--navy); box-shadow: none;">
+                View All 10 Categories <i class='bx bx-grid-alt'></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+
+<section class="why-section">
+    <div class="container">
+        <div class="section-head reveal">
+            <div class="section-eyebrow-home">Why PDM Rentals</div>
+            <h2 class="section-heading">The Premium Difference</h2>
+            <p class="section-sub">We obsess over every detail so your experience is seamless from booking to return.</p>
+        </div>
+
+        <div class="why-grid">
+            <div class="why-card reveal">
+                <div class="why-icon"><i class='bx bx-shield-quarter'></i></div>
+                <div class="why-title">Fully Insured Fleet</div>
+                <p class="why-desc">Every vehicle is comprehensively insured and serviced on a strict schedule — your safety is non-negotiable.</p>
+            </div>
+            <div class="why-card reveal delay-100">
+                <div class="why-icon"><i class='bx bx-lightning-charge'></i></div>
+                <div class="why-title">Instant Booking</div>
+                <p class="why-desc">Book your vehicle in under 2 minutes. No hidden fees, no long calls — just seamless, transparent reservations.</p>
+            </div>
+            <div class="why-card reveal delay-200">
+                <div class="why-icon"><i class='bx bx-support'></i></div>
+                <div class="why-title">24/7 Concierge Support</div>
+                <p class="why-desc">Our team is available around the clock, whether you need a last-minute change or roadside assistance.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="reviews-section">
+    <div class="container">
+        <div class="section-head reveal">
+            <div class="section-eyebrow-home" style="color:rgba(255,255,255,0.4)">What Clients Say</div>
+            <h2 class="section-heading" style="color:white">Trusted by Thousands</h2>
+            <p class="section-sub" style="color:rgba(255,255,255,0.5)">Hear from the people who drive with us every day.</p>
+        </div>
+
+        <div class="reviews-grid">
+            <div class="review-card reveal">
+                <div class="review-stars">★★★★★</div>
+                <p class="review-text">"Absolutely flawless experience from start to finish. The Audi A5 was immaculate and the booking process was incredibly smooth."</p>
+                <div class="review-author">
+                    <div class="review-avatar">AK</div>
+                    <div>
+                        <div class="review-name"> Ibrahim</div>
+                        <div class="review-car">Audi A5 — Luxury Sedans</div>
+                    </div>
+                </div>
+            </div>
+            <div class="review-card reveal delay-100">
+                <div class="review-stars">★★★★★</div>
+                <p class="review-text">"The BMW i4 was delivered on time and in perfect condition. PDM Rentals is on another level compared to other services I've used."</p>
+                <div class="review-author">
+                    <div class="review-avatar">SR</div>
+                    <div>
+                        <div class="review-name">Sara Raza</div>
+                        <div class="review-car">BMW i4 — Electric</div>
+                    </div>
+                </div>
+            </div>
+            <div class="review-card reveal delay-200">
+                <div class="review-stars">★★★★★</div>
+                <p class="review-text">"Family road trip was a dream in the Fortuner. Very professional team, fair pricing, and the car was top-notch. Highly recommend."</p>
+                <div class="review-author">
+                    <div class="review-avatar">UM</div>
+                    <div>
+                        <div class="review-name">Usman Malik</div>
+                        <div class="review-car">Toyota Fortuner — SUV</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<section class="cta-section">
+    <div class="container" style="position:relative; z-index:1;">
+        <div class="reveal">
+            <div class="cta-eyebrow">Ready to Drive?</div>
+            <h2 class="cta-heading">Your Perfect Ride<br>Awaits You</h2>
+            <p class="cta-sub">Browse our curated fleet and book your vehicle today. No fuss, no compromises.</p>
+            <a href="/categories" class="hero-btn-solid" style="font-size:1rem; padding:1.1rem 2.75rem;">
+                Browse the Fleet <i class='bx bx-right-arrow-alt'></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+
+<div class="home-footer-bar">
+    <span>&copy; @DateTime.Now.Year PDM Rentals. All rights reserved.</span>
+    <div class="home-footer-links-row">
+        <a href="/categories">Fleet</a>
+        <a href="/about">About</a>
+        <a href="/contact">Contact</a>
+        <a href="/policy">Privacy Policy</a>
+    </div>
+</div>
+
+@code {
+    
+    
+}

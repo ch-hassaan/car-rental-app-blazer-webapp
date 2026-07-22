@@ -1,0 +1,229 @@
+@using RentalBlazorApp.Models
+
+<div class="pdm-car-card">
+    
+    <div class="pdm-car-img-wrap">
+        <img src="@CarModel.ImageUrl" alt="@CarModel.Name" class="pdm-car-img" loading="lazy" />
+
+        
+        @if (CarModel.Status != CarStatus.Available)
+        {
+            <div class="pdm-car-status-overlay">
+                <span class="status-badge status-@CarModel.Status.ToString().ToLower()">
+                    @(CarModel.Status == CarStatus.Booked ? "Reserved" : "Rented Out")
+                </span>
+            </div>
+        }
+
+        
+        <div class="pdm-price-badge">
+            <span class="pdm-price-num">@CarModel.Price.ToString("N0")</span>
+            <span class="pdm-price-unit"> Rs<span class="pdm-price-per">/day</span></span>
+        </div>
+    </div>
+
+    
+    <div class="pdm-car-body">
+        <h4 class="pdm-car-name">@CarModel.Name</h4>
+        <p class="pdm-car-desc">@CarModel.Condition Condition</p>
+
+        <div class="pdm-car-specs">
+            <div class="pdm-car-spec"><i class='bx bx-user'></i> @CarModel.Seats</div>
+            <div class="pdm-car-spec"><i class='bx bx-gas-pump'></i> @CarModel.Fuel</div>
+            <div class="pdm-car-spec"><i class='bx bx-cog'></i> @CarModel.Transmission</div>
+            <div class="pdm-car-spec"><i class='bx bx-tachometer'></i> @CarModel.Mileage</div>
+        </div>
+
+        
+        <div class="pdm-car-actions">
+            @if (CarModel.Status == CarStatus.Available)
+            {
+                <a href="/form?carId=@CarModel.Id" class="pdm-btn-book">
+                    Book Now <i class='bx bx-right-arrow-alt'></i>
+                </a>
+            }
+            else
+            {
+                <button class="pdm-btn-book" disabled style="background: #94A3B8; border-color: #94A3B8; cursor: not-allowed; opacity: 0.8;">
+                    Unavailable <i class='bx bx-lock-alt'></i>
+                </button>
+            }
+        </div>
+    </div>
+</div>
+
+<style>
+
+.pdm-car-card {
+    background: #FFFFFF;
+    border: 1px solid rgba(5,13,45,0.07);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 16px rgba(5,13,45,0.07);
+    transition: transform 0.35s cubic-bezier(0.4,0,0.2,1),
+                box-shadow 0.35s cubic-bezier(0.4,0,0.2,1),
+                border-color 0.35s;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+.pdm-car-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 24px 60px rgba(5,13,45,0.14), 0 4px 12px rgba(5,13,45,0.06);
+    border-color: rgba(37,99,235,0.18);
+}
+
+
+.pdm-car-img-wrap {
+    position: relative;
+    overflow: hidden;
+    background: #F1F5F9;
+}
+.pdm-car-img {
+    width: 100%;
+    height: 230px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+.pdm-car-card:hover .pdm-car-img {
+    transform: scale(1.07);
+}
+
+.pdm-car-status-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(5,13,45,0.4);
+    backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+}
+.pdm-car-status-overlay .status-badge {
+    font-size: 0.9rem;
+    padding: 0.5rem 1rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+
+.pdm-price-badge {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: rgba(5,13,45,0.88);
+    backdrop-filter: blur(8px);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 9999px;
+    font-family: 'Outfit', sans-serif;
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+    border: 1px solid rgba(255,255,255,0.12);
+}
+.pdm-price-num {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #93C5FD;
+}
+.pdm-price-unit {
+    font-size: 0.75rem;
+    color: rgba(255,255,255,0.7);
+}
+.pdm-price-per {
+    font-size: 0.65rem;
+    opacity: 0.6;
+}
+
+
+.pdm-car-body {
+    padding: 1.5rem 1.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+.pdm-car-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: #050D2D;
+    margin-bottom: 0.4rem;
+    letter-spacing: -0.01em;
+}
+.pdm-car-desc {
+    font-size: 0.825rem;
+    color: #64748B;
+    margin-bottom: 1rem;
+    line-height: 1.6;
+    flex-grow: 1;
+}
+
+
+.pdm-car-specs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem 0.75rem;
+    margin-bottom: 1.25rem;
+    padding: 1rem;
+    background: #F8FAFC;
+    border-radius: 12px;
+    border: 1px solid rgba(5,13,45,0.05);
+}
+.pdm-car-specs li {
+    list-style: none;
+    font-size: 0.78rem;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+.pdm-car-specs li i {
+    color: #2563EB;
+    font-size: 0.9rem;
+    flex-shrink: 0;
+}
+
+
+.pdm-car-actions {
+    display: flex;
+    gap: 0.625rem;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(5,13,45,0.06);
+}
+
+
+.pdm-btn-book {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.65rem 1rem;
+    background: #2563EB;
+    color: white;
+    border: 2px solid #2563EB;
+    border-radius: 8px;
+    font-size: 0.825rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s;
+    white-space: nowrap;
+}
+.pdm-btn-book:hover {
+    background: #3B82F6;
+    border-color: #3B82F6;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(37,99,235,0.35);
+}
+</style>
+
+@code {
+    
+    
+    [Parameter]
+    public Car CarModel { get; set; } = new Car();
+}

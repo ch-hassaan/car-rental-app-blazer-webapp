@@ -1,0 +1,157 @@
+@page "/admin"
+@layout Layout.AdminLayout
+@inject CarService CarSvc
+@inject BookingService BookingSvc
+@inject AuthService Auth
+
+<PageTitle>Admin Dashboard — PDM Rentals</PageTitle>
+
+
+<div class="admin-topbar">
+    <div>
+        <div class="admin-topbar-title">Dashboard</div>
+        <div class="admin-topbar-sub">Welcome back, @(Auth.CurrentUser?.FullName ?? "Admin")</div>
+    </div>
+    <div class="admin-topbar-right">
+        <div class="admin-user-badge">
+            <div class="admin-user-avatar">@GetInitials()</div>
+            <div>
+                <div class="admin-user-name">@(Auth.CurrentUser?.FullName ?? "Admin")</div>
+                <div class="admin-user-role">Administrator</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="admin-stats-grid">
+    <div class="admin-stat-card reveal">
+        <div class="admin-stat-icon blue"><i class='bx bx-car'></i></div>
+        <div class="admin-stat-num">@totalCars</div>
+        <div class="admin-stat-label">Total Vehicles</div>
+    </div>
+    <div class="admin-stat-card reveal delay-100">
+        <div class="admin-stat-icon green"><i class='bx bx-check-circle'></i></div>
+        <div class="admin-stat-num">@availableCars</div>
+        <div class="admin-stat-label">Available</div>
+    </div>
+    <div class="admin-stat-card reveal delay-200">
+        <div class="admin-stat-icon amber"><i class='bx bx-time-five'></i></div>
+        <div class="admin-stat-num">@pendingBookings</div>
+        <div class="admin-stat-label">Pending Requests</div>
+    </div>
+    <div class="admin-stat-card reveal delay-300">
+        <div class="admin-stat-icon purple"><i class='bx bx-wallet'></i></div>
+        <div class="admin-stat-num">@totalRevenue.ToString("N0") Rs</div>
+        <div class="admin-stat-label">Total Revenue</div>
+    </div>
+</div>
+
+
+<div class="admin-table-card reveal">
+    <div class="admin-table-header">
+        <div class="admin-table-title">Recent Booking Requests</div>
+        <a href="/admin/bookings" class="admin-btn-sm blue">View All <i class='bx bx-right-arrow-alt'></i></a>
+    </div>
+    @if (recentBookings.Any())
+    {
+        <div style="overflow-x: auto;">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Vehicle</th>
+                        <th>Days</th>
+                        <th>Total</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var b in recentBookings)
+                    {
+                        <tr>
+                            <td>
+                                <div style="font-weight:600;">@b.FullName</div>
+                                <div style="font-size:0.75rem;color:#94A3B8;">@b.Email</div>
+                            </td>
+                            <td>@b.CarName</td>
+                            <td>@b.Days</td>
+                            <td style="font-weight:700;">@b.TotalAmount.ToString("N0") Rs</td>
+                            <td><span class="status-badge status-@b.Status.ToString().ToLower()">@b.Status</span></td>
+                            <td style="font-size:0.8rem;color:#94A3B8;">@b.CreatedAt.ToString("MMM dd, yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5" style="color:#94A3B8;">
+            <i class='bx bx-inbox' style="font-size:2.5rem;"></i>
+            <p class="mt-2 mb-0">No bookings yet</p>
+        </div>
+    }
+</div>
+
+
+<div class="row g-3 reveal">
+    <div class="col-md-4">
+        <a href="/admin/cars" class="admin-stat-card d-block text-decoration-none" style="text-align:center; cursor:pointer;">
+            <i class='bx bx-plus-circle' style="font-size:2rem; color:#2563EB;"></i>
+            <div style="font-weight:700; color:var(--color-navy); margin-top:0.5rem;">Manage Fleet</div>
+            <div style="font-size:0.8rem; color:#64748B;">Add, edit, or remove vehicles</div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="/admin/bookings" class="admin-stat-card d-block text-decoration-none" style="text-align:center; cursor:pointer;">
+            <i class='bx bx-calendar-check' style="font-size:2rem; color:#22C55E;"></i>
+            <div style="font-weight:700; color:var(--color-navy); margin-top:0.5rem;">Manage Bookings</div>
+            <div style="font-size:0.8rem; color:#64748B;">Approve, reject, or complete</div>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="/admin/users" class="admin-stat-card d-block text-decoration-none" style="text-align:center; cursor:pointer;">
+            <i class='bx bx-group' style="font-size:2rem; color:#8B5CF6;"></i>
+            <div style="font-weight:700; color:var(--color-navy); margin-top:0.5rem;">Manage Users</div>
+            <div style="font-size:0.8rem; color:#64748B;">View accounts & roles</div>
+        </a>
+    </div>
+</div>
+
+@code {
+    // Variables holding the statistics shown at the top of the dashboard
+    private int totalCars, availableCars, pendingBookings, totalRevenue;
+    
+    // A list to hold the 5 most recent bookings for the summary table
+    private List<Booking> recentBookings = new();
+
+    // This method runs automatically when the admin dashboard loads
+    protected override async Task OnInitializedAsync()
+    {
+        // --- Calculate Car Statistics ---
+        var cars = await CarSvc.GetAllAsync(); // Fetch all cars from DB
+        totalCars = cars.Count; // Total number of cars
+        availableCars = cars.Count(c => c.Status == CarStatus.Available); // Count only the available ones
+
+        // --- Calculate Booking Statistics ---
+        var bookings = await BookingSvc.GetAllAsync(); // Fetch all bookings from DB
+        pendingBookings = bookings.Count(b => b.Status == BookingStatus.Pending); // Count bookings awaiting approval
+        
+        // Calculate revenue by summing the TotalAmount of all Approved or Completed bookings
+        totalRevenue = bookings.Where(b => b.Status == BookingStatus.Approved || b.Status == BookingStatus.Completed).Sum(b => b.TotalAmount);
+        
+        // Grab the 5 most recent bookings to display in the table
+        recentBookings = bookings.OrderByDescending(b => b.CreatedAt).Take(5).ToList();
+    }
+
+    // Helper method to get the user's initials for the circular avatar (e.g., "John Doe" -> "JD")
+    private string GetInitials()
+    {
+        var name = Auth.CurrentUser?.FullName ?? "A"; // Default to "A" for Admin if no name
+        var parts = name.Split(' '); // Split name by spaces
+        // If they have a first and last name, take the first letter of both. Otherwise, just the first letter.
+        return parts.Length >= 2 ? $"{parts[0][0]}{parts[1][0]}" : $"{parts[0][0]}";
+    }
+}

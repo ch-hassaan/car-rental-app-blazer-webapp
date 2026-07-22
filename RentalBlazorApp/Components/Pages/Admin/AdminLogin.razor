@@ -1,0 +1,232 @@
+@page "/admin/login"
+@layout Layout.EmptyLayout
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+<PageTitle>Admin Sign In — PDM Rentals</PageTitle>
+
+
+@if (Auth.IsAdmin)
+{
+    Nav.NavigateTo("/admin", forceLoad: false);
+}
+
+<div class="admin-login-bg">
+    
+    <div class="admin-login-shape admin-login-shape-1"></div>
+    <div class="admin-login-shape admin-login-shape-2"></div>
+    <div class="admin-login-shape admin-login-shape-3"></div>
+
+    <div class="admin-login-wrapper">
+        
+        <div class="admin-login-panel-left">
+            <div class="admin-login-brand">
+                <a href="/">PDM<span> Rentals</span></a>
+            </div>
+            <h1 class="admin-login-hero-title">
+                Fleet Management<br />
+                <span>Control Centre</span>
+            </h1>
+            <p class="admin-login-hero-sub">
+                Manage your entire vehicle fleet, bookings, and customers from one powerful dashboard.
+            </p>
+
+            <div class="admin-login-features">
+                <div class="admin-login-feature">
+                    <div class="admin-login-feature-icon">
+                        <i class='bx bx-car'></i>
+                    </div>
+                    <div>
+                        <div class="admin-login-feature-title">Fleet Management</div>
+                        <div class="admin-login-feature-desc">Add, edit & manage all vehicles</div>
+                    </div>
+                </div>
+                <div class="admin-login-feature">
+                    <div class="admin-login-feature-icon">
+                        <i class='bx bx-calendar-check'></i>
+                    </div>
+                    <div>
+                        <div class="admin-login-feature-title">Booking Control</div>
+                        <div class="admin-login-feature-desc">Approve or reject reservations</div>
+                    </div>
+                </div>
+                <div class="admin-login-feature">
+                    <div class="admin-login-feature-icon">
+                        <i class='bx bx-group'></i>
+                    </div>
+                    <div>
+                        <div class="admin-login-feature-title">User Management</div>
+                        <div class="admin-login-feature-desc">View accounts and assign roles</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="admin-login-panel-right">
+            <div class="admin-login-card">
+                
+                <div class="admin-login-card-header">
+                    <div class="admin-login-card-icon">
+                        <i class='bx bx-shield-quarter'></i>
+                    </div>
+                    <h2 class="admin-login-card-title">Administrator Access</h2>
+                    <p class="admin-login-card-sub">Sign in with your admin credentials</p>
+                </div>
+
+                
+                @if (!string.IsNullOrEmpty(errorMessage))
+                {
+                    <div class="auth-alert auth-alert-error" style="margin-bottom: 1.25rem;">
+                        <i class='bx bx-error-circle'></i>
+                        @errorMessage
+                    </div>
+                }
+
+                
+                @if (isSuccess)
+                {
+                    <div class="auth-alert auth-alert-success" style="margin-bottom: 1.25rem;">
+                        <i class='bx bx-check-circle'></i>
+                        Access granted! Redirecting to dashboard…
+                    </div>
+                }
+
+                
+                <div class="admin-login-form">
+                    <div class="admin-login-field">
+                        <label class="admin-login-label">
+                            <i class='bx bx-envelope'></i> Email Address
+                        </label>
+                        <input type="email"
+                               class="admin-login-input @(fieldError == "email" ? "error" : "")"
+                               placeholder="Enter your email"
+                               @bind="email"
+                               @bind:event="oninput"
+                               disabled="@isLoading"
+                               id="adminEmail" />
+                    </div>
+
+                    <div class="admin-login-field">
+                        <label class="admin-login-label">
+                            <i class='bx bx-lock-alt'></i> Password
+                        </label>
+                        <div class="admin-login-pw-wrap">
+                            <input type="@(showPassword ? "text" : "password")"
+                                   class="admin-login-input @(fieldError == "password" ? "error" : "")"
+                                   placeholder="Enter your password"
+                                   @bind="password"
+                                   @bind:event="oninput"
+                                   disabled="@isLoading"
+                                   id="adminPassword"
+                                   @onkeydown="HandleKeyDown" />
+                            <button type="button" class="admin-login-pw-toggle" @onclick="() => showPassword = !showPassword" tabindex="-1">
+                                <i class='bx @(showPassword ? "bx-hide" : "bx-show")'></i>
+                            </button>
+                        </div>
+                    </div>
+
+                
+                    <button class="admin-login-btn" @onclick="HandleLogin" disabled="@isLoading">
+                        @if (isLoading)
+                        {
+                            <span class="admin-login-spinner"></span>
+                            <span>Authenticating…</span>
+                        }
+                        else
+                        {
+                            <i class='bx bx-log-in-circle'></i>
+                            <span>Sign In to Dashboard</span>
+                        }
+                    </button>
+                </div>
+
+                
+                <div class="admin-login-card-footer">
+                    <a href="/" class="admin-login-back">
+                        <i class='bx bx-arrow-back'></i> Back to Website
+                    </a>
+                    <a href="/login" class="admin-login-back">
+                        Customer Login <i class='bx bx-right-arrow-alt'></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    
+    private string email = "";
+    private string password = "";
+    private string? errorMessage; 
+    private string? fieldError; 
+    private bool isLoading = false; 
+    private bool showPassword = false; 
+    private bool isSuccess = false; 
+
+    
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await HandleLogin();
+    }
+
+    
+    private async Task HandleLogin()
+    {
+        
+        errorMessage = null;
+        fieldError = null;
+
+        
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            errorMessage = "Please enter your email address.";
+            fieldError = "email"; 
+            return; 
+        }
+        
+        if (string.IsNullOrWhiteSpace(password))
+        {
+            errorMessage = "Please enter your password.";
+            fieldError = "password"; 
+            return; 
+        }
+
+        isLoading = true; 
+        StateHasChanged(); 
+
+        await Task.Delay(600); 
+
+        
+        var result = await Auth.LoginAsync(email, password);
+
+        if (result.Success) 
+        {
+            
+            if (!Auth.IsAdmin)
+            {
+                Auth.Logout(); 
+                errorMessage = "Access denied. This account does not have administrator privileges.";
+                isLoading = false;
+                return;
+            }
+            
+            
+            isSuccess = true; 
+            isLoading = false; 
+            StateHasChanged(); 
+            
+            await Task.Delay(800); 
+            
+            
+            Nav.NavigateTo("/admin", forceLoad: false);
+        }
+        else 
+        {
+            errorMessage = result.Message; 
+            isLoading = false;
+        }
+    }
+}

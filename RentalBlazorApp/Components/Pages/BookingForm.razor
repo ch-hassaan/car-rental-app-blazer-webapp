@@ -1,0 +1,292 @@
+@page "/form"
+@inject AuthService Auth
+@inject BookingService BookingSvc
+@inject CarService CarSvc
+@inject NavigationManager Nav
+@implements IDisposable
+
+<PageTitle>Secure Checkout — PDM Rentals</PageTitle>
+
+
+<div class="pdm-page-hero" style="background-image: url('https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?w=2400&q=80'); min-height: 32vh;">
+    <div class="pdm-page-hero-overlay"></div>
+    <div class="pdm-page-hero-content container">
+        <span class="section-eyebrow" style="color:rgba(255,255,255,0.5);">PDM Rentals</span>
+        <h1 class="pdm-page-hero-title slide-up" style="font-size: clamp(2rem,4vw,3.25rem);">Secure Checkout</h1>
+        <p class="pdm-page-hero-sub slide-up delay-100">Complete your reservation in just a few steps.</p>
+    </div>
+</div>
+
+<section style="padding: 5rem 0; background: #F9FAFB;">
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+
+            @if (!Auth.IsLoggedIn)
+            {
+                
+                <div class="booking-auth-gate reveal">
+                    <div class="auth-gate-icon">
+                        <i class='bx bx-lock-alt'></i>
+                    </div>
+                    <h2 class="auth-gate-title">Sign In to Continue</h2>
+                    <p class="auth-gate-desc">
+                        You need to be signed in to book a vehicle.
+                        Please log in to your PDM Rentals account or create a new one — it only takes a minute.
+                    </p>
+                    <div class="auth-gate-actions">
+                        <a href="/login?returnUrl=@Uri.EscapeDataString(Nav.Uri)" class="btn-pdm-primary auth-gate-btn">
+                            <i class='bx bx-log-in-circle'></i>
+                            Sign In to Book
+                        </a>
+                        <a href="/register" class="btn-pdm-outline auth-gate-btn">
+                            <i class='bx bx-user-plus'></i>
+                            Create an Account
+                        </a>
+                    </div>
+                    <p class="auth-gate-note">
+                        <i class='bx bx-shield-quarter' style="color:#2563EB; font-size:1rem;"></i>
+                        Your data is protected with SSL encryption.
+                    </p>
+                </div>
+            }
+            else if (formSubmitted)
+            {
+                
+                <div class="booking-success-card reveal">
+                    <div class="success-icon-wrap">
+                        <div class="success-ring"></div>
+                        <i class='bx bx-check-circle'></i>
+                    </div>
+                    <h2 class="success-title">Booking Confirmed!</h2>
+                    <p class="success-desc">
+                        Thank you for choosing PDM Rentals. Your reservation has been successfully placed.<br>
+                        Check your email for confirmation details.
+                    </p>
+                    <a href="/categories" class="btn-pdm-primary" style="margin: 0 auto; display:inline-flex;">
+                        Return to Fleet <i class='bx bx-right-arrow-alt'></i>
+                    </a>
+                </div>
+            }
+            else
+            {
+                <EditForm Model="booking" OnValidSubmit="SubmitBooking">
+                    <DataAnnotationsValidator />
+
+                    
+                    <div class="booking-steps reveal">
+                        <div class="booking-step active">
+                            <div class="step-num">01</div>
+                            <div class="step-label">Personal Info</div>
+                        </div>
+                        <div class="step-connector"></div>
+                        <div class="booking-step">
+                            <div class="step-num">02</div>
+                            <div class="step-label">Rental Details</div>
+                        </div>
+                        <div class="step-connector"></div>
+                        <div class="booking-step">
+                            <div class="step-num">03</div>
+                            <div class="step-label">Payment</div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="booking-section reveal">
+                        <div class="booking-section-header">
+                            <div class="booking-section-num">01</div>
+                            <div>
+                                <div class="booking-section-title">Personal Information</div>
+                                <div class="booking-section-sub">Tell us about yourself</div>
+                            </div>
+                        </div>
+                        <div class="booking-section-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <InputText class="form-control" id="bookingName" placeholder="John Doe" @bind-Value="booking.FullName" />
+                                        <label for="bookingName">Full Name</label>
+                                        <ValidationMessage For="@(() => booking.FullName)" class="text-danger small mt-1" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <InputText type="email" class="form-control" id="bookingEmail" placeholder="name@example.com" @bind-Value="booking.Email" />
+                                        <label for="bookingEmail">Email Address</label>
+                                        <ValidationMessage For="@(() => booking.Email)" class="text-danger small mt-1" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <InputText type="tel" class="form-control" id="bookingPhone" placeholder="+92 300 1234567" @bind-Value="booking.Phone" />
+                                        <label for="bookingPhone">Phone Number</label>
+                                        <ValidationMessage For="@(() => booking.Phone)" class="text-danger small mt-1" />
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-floating">
+                                        <InputText class="form-control" id="bookingLicense" placeholder="ABC-12345" @bind-Value="booking.LicenseNo" />
+                                        <label for="bookingLicense">Driver's License No.</label>
+                                        <ValidationMessage For="@(() => booking.LicenseNo)" class="text-danger small mt-1" />
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="form-floating">
+                                        <InputText class="form-control" id="bookingAddress" placeholder="123 Main St" @bind-Value="booking.Address" />
+                                        <label for="bookingAddress">Home Address</label>
+                                        <ValidationMessage For="@(() => booking.Address)" class="text-danger small mt-1" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="booking-section reveal delay-100">
+                        <div class="booking-section-header">
+                            <div class="booking-section-num">02</div>
+                            <div>
+                                <div class="booking-section-title">Rental Information</div>
+                                <div class="booking-section-sub">Duration and cost summary</div>
+                            </div>
+                        </div>
+                        <div class="booking-section-body">
+                            <div class="rental-summary-card">
+                                <div class="rental-summary-row">
+                                    <span>Selected Vehicle</span>
+                                    <span style="font-weight: 600; color: var(--color-navy);">@(car?.Name ?? "Loading...")</span>
+                                </div>
+                                <div class="rental-summary-row">
+                                    <span>Daily Rate</span>
+                                    <span class="rental-summary-val">@(car?.Price.ToString("N0") ?? "0") Rs / day</span>
+                                </div>
+                                <div class="rental-summary-row">
+                                    <span>Duration (Days)</span>
+                                    <div>
+                                        <InputNumber class="form-control"
+                                               style="width: 120px; display: inline-block; text-align: center; font-weight: 700;"
+                                               @bind-Value="booking.Days"
+                                               min="1" />
+                                    </div>
+                                </div>
+                                <div class="rental-summary-divider"></div>
+                                <div class="rental-summary-row rental-total">
+                                    <span>Total Amount</span>
+                                    <span class="rental-total-val">@(((car?.Price ?? 0) * booking.Days).ToString("N0")) Rs</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="booking-section reveal delay-200">
+                        <div class="booking-section-header">
+                            <div class="booking-section-num">03</div>
+                            <div>
+                                <div class="booking-section-title">Payment Method</div>
+                                <div class="booking-section-sub">Choose how you'd like to pay</div>
+                            </div>
+                        </div>
+                        <div class="booking-section-body">
+                            <div class="form-floating">
+                                <InputSelect class="form-select" id="paymentMethod" @bind-Value="booking.PaymentMethod">
+                                    <option value="" disabled selected>Select payment method</option>
+                                    <option value="credit-card">Credit Card</option>
+                                    <option value="debit-card">Debit Card</option>
+                                    <option value="easypaisa">EasyPaisa</option>
+                                    <option value="jazz">Jazz Cash</option>
+                                </InputSelect>
+                                <label for="paymentMethod">Payment Provider</label>
+                                <ValidationMessage For="@(() => booking.PaymentMethod)" class="text-danger small mt-1" />
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                    <div class="reveal delay-300 text-center" style="margin-top: 2rem;">
+                        <button type="submit" class="btn-pdm-primary booking-submit" disabled="@(car == null)">
+                            <i class='bx bx-lock-alt me-2'></i>
+                            Confirm Booking — @(((car?.Price ?? 0) * booking.Days).ToString("N0")) Rs
+                        </button>
+                        <p style="margin-top: 1rem; font-size: 0.8rem; color: #94A3B8;">
+                            <i class='bx bx-shield-quarter' style="color:#2563EB;"></i>
+                            Secured with SSL encryption. Your data is safe.
+                        </p>
+                    </div>
+
+                </EditForm>
+            }
+
+        </div>
+    </div>
+</div>
+</section>
+
+
+@code {
+    
+    [SupplyParameterFromQuery(Name = "carId")]
+    public string CarId { get; set; } = "";
+
+    
+    private Car? car; 
+    private Booking booking = new() { Days = 1 }; 
+    private bool formSubmitted = false; 
+
+    
+    protected override async Task OnInitializedAsync()
+    {
+        
+        Auth.OnAuthStateChanged += OnAuthChanged;
+
+        
+        if (!string.IsNullOrEmpty(CarId))
+            car = await CarSvc.GetByIdAsync(CarId);
+
+        
+        if (Auth.IsLoggedIn && Auth.CurrentUser != null)
+        {
+            booking.UserId = Auth.CurrentUser.Id; 
+            booking.FullName = Auth.CurrentUser.FullName;
+            booking.Email = Auth.CurrentUser.Email;
+        }
+    }
+
+    
+    private void OnAuthChanged()
+    {
+        
+        if (Auth.IsLoggedIn && Auth.CurrentUser != null)
+        {
+            booking.UserId = Auth.CurrentUser.Id;
+            booking.FullName = Auth.CurrentUser.FullName;
+            booking.Email = Auth.CurrentUser.Email;
+        }
+        InvokeAsync(StateHasChanged); 
+    }
+
+    
+    public void Dispose()
+    {
+        
+        Auth.OnAuthStateChanged -= OnAuthChanged;
+    }
+
+    
+    private async Task SubmitBooking()
+    {
+        if (car == null) return; 
+
+        
+        booking.CarId = car.Id;
+        booking.CarName = car.Name;
+        booking.DailyRate = car.Price;
+        booking.TotalAmount = car.Price * booking.Days; 
+
+        
+        await BookingSvc.AddAsync(booking);
+        
+        
+        formSubmitted = true;
+    }
+}

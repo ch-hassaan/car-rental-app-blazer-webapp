@@ -1,0 +1,15 @@
+
+
+@if (IsVisible)
+{
+    <div class="typing-indicator-placeholder">
+        <span>Assistant is typing...</span>
+    </div>
+}
+
+@code {
+    
+    
+    [Parameter]
+    public bool IsVisible { get; set; }
+}

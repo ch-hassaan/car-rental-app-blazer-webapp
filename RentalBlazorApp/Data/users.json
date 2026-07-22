@@ -1,0 +1,18 @@
+[
+  {
+    "Id": "a508a279-5445-4793-a8fd-d65cd0e9be6b",
+    "FullName": "PDM Admin",
+    "Email": "admin@pdmrentals.com",
+    "PasswordHash": "$2a$11$szRsOz08oR.o9aj9.xnzh.oF6Ao.BPhtWPkLo5bpz6Lc1Qe2T/Kq6",
+    "Role": "Admin",
+    "CreatedAt": "2026-05-07T19:22:57.8453489Z"
+  },
+  {
+    "Id": "851aa4f8-3858-4059-8141-c04c486aa55e",
+    "FullName": "hassaan",
+    "Email": "h@gmail.com",
+    "PasswordHash": "$2a$11$FpaA5319yO5cwv5F1wQOPecaEvky.fu9mHXPBd3IzhmmQfNdj8N9W",
+    "Role": "Customer",
+    "CreatedAt": "2026-05-13T18:17:10.1990253Z"
+  }
+]

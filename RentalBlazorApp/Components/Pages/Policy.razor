@@ -1,0 +1,290 @@
+@page "/policy"
+@inject NavigationManager NavManager
+
+<PageTitle>Privacy & Policy — PDM Rentals</PageTitle>
+
+
+<div class="pdm-page-hero" style="background-image: url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=2400&q=80'); min-height: 35vh;">
+    <div class="pdm-page-hero-overlay"></div>
+    <div class="pdm-page-hero-content container">
+        <span class="section-eyebrow" style="color:rgba(255,255,255,0.5);">User Terms</span>
+        <h1 class="pdm-page-hero-title slide-up">Rental Agreement</h1>
+        <p class="pdm-page-hero-sub slide-up delay-100">Please review our terms and conditions before proceeding.</p>
+    </div>
+</div>
+
+<section style="padding: 5rem 0; background: #F9FAFB;">
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+
+            <div class="policy-card reveal">
+                <div class="policy-header">
+                    <i class='bx bx-check-shield'></i>
+                    <h2>Terms & Conditions</h2>
+                </div>
+
+                <div class="policy-body">
+                    <p class="policy-intro">
+                        By using the services of <strong>Premium Deluxe Motorsport (PDM) Rentals</strong>, you enter into a binding agreement and acknowledge acceptance of the following terms.
+                    </p>
+
+                    <div class="policy-list-wrap">
+                        <div class="policy-item">
+                            <div class="policy-item-num">01</div>
+                            <div class="policy-item-text">
+                                <strong>Availability & Bookings:</strong> All rentals are subject to vehicle availability. PDM reserves the right to substitute a vehicle with a similar or higher class model.
+                            </div>
+                        </div>
+
+                        <div class="policy-item">
+                            <div class="policy-item-num">02</div>
+                            <div class="policy-item-text">
+                                <strong>Late Returns:</strong> A grace period of 59 minutes is provided. Beyond this, daily rental rates and additional handling fees will apply.
+                            </div>
+                        </div>
+
+                        <div class="policy-item">
+                            <div class="policy-item-num">03</div>
+                            <div class="policy-item-text">
+                                <strong>Age Requirements:</strong> Renters must be at least 21 years of age and hold a valid, unrestricted driver's license for at least 1 year.
+                            </div>
+                        </div>
+
+                        <div class="policy-item">
+                            <div class="policy-item-num">04</div>
+                            <div class="policy-item-text">
+                                <strong>Liability:</strong> The renter is fully liable for any mechanical damage, exterior scratches, or interior stains caused during the rental period.
+                            </div>
+                        </div>
+
+                        <div class="policy-item">
+                            <div class="policy-item-num">05</div>
+                            <div class="policy-item-text">
+                                <strong>Fuel Policy:</strong> Vehicles are provided with a full tank of fuel and must be returned in the same condition.
+                            </div>
+                        </div>
+
+                        <div class="policy-item">
+                            <div class="policy-item-num">06</div>
+                            <div class="policy-item-text">
+                                <strong>Insurance:</strong> Base insurance is included, however, premium coverage for full peace of mind is highly recommended.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="policy-footer">
+                        <p>Do you accept these terms and wish to proceed with your reservation?</p>
+                        
+                        <div class="policy-actions">
+                            <button class="btn-pdm-primary px-5" @onclick="Agree">
+                                <i class='bx bx-check me-2'></i> I Agree
+                            </button>
+                            <button class="btn-pdm-ghost text-navy" style="border-color:#E2E8F0; color:#64748B !important;" @onclick="Decline">
+                                <i class='bx bx-x me-2'></i> Decline
+                            </button>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(responseMessage))
+                        {
+                            <div class="policy-alert @alertClass reveal mt-4">
+                                <i class='bx @(alertClass.Contains("success") ? "bx-party" : "bx-error-circle")'></i>
+                                <span>@responseMessage</span>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+</section>
+
+<style>
+
+.pdm-page-hero {
+    position: relative;
+    min-height: 42vh;
+    display: flex;
+    align-items: flex-end;
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+}
+.pdm-page-hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(to bottom, rgba(5,13,45,0.7), rgba(5,13,45,0.95));
+}
+.pdm-page-hero-content {
+    position: relative;
+    z-index: 2;
+    padding-bottom: 4rem;
+    padding-top: 8rem;
+}
+.pdm-page-hero-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 900;
+    color: white;
+    letter-spacing: -0.04em;
+    margin-bottom: 0.75rem;
+}
+.pdm-page-hero-sub {
+    font-size: 1.05rem;
+    color: rgba(255,255,255,0.6);
+    margin: 0;
+}
+.section-eyebrow {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #2563EB;
+    margin-bottom: 0.75rem;
+}
+
+
+.policy-card {
+    background: white;
+    border: 1px solid rgba(5,13,45,0.06);
+    border-radius: 28px;
+    box-shadow: 0 12px 48px rgba(5,13,45,0.08);
+    overflow: hidden;
+}
+.policy-header {
+    background: #050D2D;
+    color: white;
+    padding: 3rem 2rem;
+    text-align: center;
+}
+.policy-header i {
+    font-size: 3rem;
+    color: #60A5FA;
+    margin-bottom: 1rem;
+    display: block;
+}
+.policy-header h2 {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: white;
+    margin: 0;
+}
+
+.policy-body {
+    padding: 3rem;
+}
+.policy-intro {
+    font-size: 1.05rem;
+    color: #334155;
+    line-height: 1.6;
+    margin-bottom: 2.5rem;
+}
+
+.policy-list-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+.policy-item {
+    display: flex;
+    gap: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid rgba(5,13,45,0.05);
+}
+.policy-item:last-child { border: none; }
+
+.policy-item-num {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    color: #2563EB;
+    background: rgba(37,99,235,0.08);
+    width: 38px; height: 38px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+.policy-item-text {
+    font-size: 0.925rem;
+    color: #64748B;
+    line-height: 1.7;
+}
+.policy-item-text strong {
+    display: block;
+    color: #050D2D;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+
+.policy-footer {
+    border-top: 1px solid rgba(5,13,45,0.08);
+    padding-top: 2.5rem;
+    text-align: center;
+}
+.policy-footer p {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #050D2D;
+    margin-bottom: 1.5rem;
+}
+
+.policy-actions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.policy-alert {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+.policy-alert.success {
+    background: #DCFCE7;
+    color: #166534;
+    border: 1px solid #BBF7D0;
+}
+.policy-alert.danger {
+    background: #FEE2E2;
+    color: #991B1B;
+    border: 1px solid #FECACA;
+}
+.policy-alert i { font-size: 1.25rem; }
+
+@@media (max-width: 768px) {
+    .policy-body { padding: 2rem 1.5rem; }
+    .policy-actions { flex-direction: column; }
+    .btn-pdm-primary { width: 100%; }
+}
+</style>
+
+@code {
+    private string? responseMessage = null;
+    private string alertClass = "";
+
+    private async Task Agree()
+    {
+        responseMessage = "Terms accepted. Redirecting you to our fleet selection...";
+        alertClass = "success";
+        StateHasChanged();
+        
+        await Task.Delay(1500);
+        NavManager.NavigateTo("/categories");
+    }
+
+    private void Decline()
+    {
+        responseMessage = "Agreement declined. Access to booking has been restricted.";
+        alertClass = "danger";
+        StateHasChanged();
+    }
+}

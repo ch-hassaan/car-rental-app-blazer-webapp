@@ -1,0 +1,283 @@
+@page "/admin/cars"
+@layout Layout.AdminLayout
+@inject CarService CarSvc
+
+<PageTitle>Manage Cars — PDM Rentals Admin</PageTitle>
+
+<div class="admin-topbar">
+    <div>
+        <div class="admin-topbar-title">Manage Fleet</div>
+        <div class="admin-topbar-sub">Add, edit, and manage your vehicle inventory</div>
+    </div>
+    <div class="admin-topbar-right">
+        <button class="btn-pdm-primary" @onclick="OpenAddModal" style="font-size:0.85rem; padding:0.6rem 1.25rem;">
+            <i class='bx bx-plus'></i> Add Vehicle
+        </button>
+    </div>
+</div>
+
+
+<div class="d-flex flex-wrap gap-3 mb-4 align-items-center">
+    <div class="admin-search">
+        <i class='bx bx-search'></i>
+        <input type="text" placeholder="Search vehicles..." @bind="searchQuery" @bind:event="oninput" />
+    </div>
+    <div class="admin-filters">
+        <button class="admin-filter-btn @(categoryFilter == "" ? "active" : "")" @onclick='() => categoryFilter = ""'>All</button>
+        @foreach (var cat in categories)
+        {
+            <button class="admin-filter-btn @(categoryFilter == cat ? "active" : "")" @onclick="() => categoryFilter = cat">@cat</button>
+        }
+    </div>
+    <div class="admin-filters">
+        <button class="admin-filter-btn @(statusFilter == null ? "active" : "")" @onclick="() => statusFilter = null">All Status</button>
+        <button class="admin-filter-btn @(statusFilter == CarStatus.Available ? "active" : "")" @onclick="() => statusFilter = CarStatus.Available">Available</button>
+        <button class="admin-filter-btn @(statusFilter == CarStatus.Booked ? "active" : "")" @onclick="() => statusFilter = CarStatus.Booked">Booked</button>
+        <button class="admin-filter-btn @(statusFilter == CarStatus.Rented ? "active" : "")" @onclick="() => statusFilter = CarStatus.Rented">Rented</button>
+    </div>
+</div>
+
+
+<div class="admin-table-card">
+    <div class="admin-table-header">
+        <div class="admin-table-title">Vehicles (@FilteredCars.Count total)</div>
+    </div>
+    <div style="overflow-x:auto;">
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Vehicle</th>
+                    <th>Category</th>
+                    <th>Price/Day</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var car in FilteredCars)
+                {
+                    <tr>
+                        <td><img src="@car.ImageUrl" alt="@car.Name" class="admin-table-img" /></td>
+                        <td>
+                            <div style="font-weight:600;">@car.Name</div>
+                            <div style="font-size:0.75rem;color:#94A3B8;">@car.Seats seats · @car.Fuel · @car.Transmission</div>
+                        </td>
+                        <td>@car.Category</td>
+                        <td style="font-weight:700;">@car.Price.ToString("N0") Rs</td>
+                        <td>
+                            <span class="status-badge status-@car.Status.ToString().ToLower()">
+                                @car.Status
+                            </span>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1 flex-wrap">
+                                @if (car.Status != CarStatus.Available)
+                                {
+                                    <button class="admin-btn-sm green" @onclick="() => SetStatus(car.Id, CarStatus.Available)">
+                                        <i class='bx bx-check'></i> Available
+                                    </button>
+                                }
+                                @if (car.Status != CarStatus.Booked)
+                                {
+                                    <button class="admin-btn-sm amber" @onclick="() => SetStatus(car.Id, CarStatus.Booked)">
+                                        <i class='bx bx-bookmark'></i> Booked
+                                    </button>
+                                }
+                                @if (car.Status != CarStatus.Rented)
+                                {
+                                    <button class="admin-btn-sm blue" @onclick="() => SetStatus(car.Id, CarStatus.Rented)">
+                                        <i class='bx bx-key'></i> Rented
+                                    </button>
+                                }
+                                <button class="admin-btn-sm purple" @onclick="() => OpenEditModal(car)">
+                                    <i class='bx bx-edit'></i>
+                                </button>
+                                <button class="admin-btn-sm red" @onclick="() => DeleteCar(car.Id)">
+                                    <i class='bx bx-trash'></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    @if (!FilteredCars.Any())
+    {
+        <div class="text-center py-5" style="color:#94A3B8;">
+            <i class='bx bx-search-alt' style="font-size:2.5rem;"></i>
+            <p class="mt-2 mb-0">No vehicles found matching your criteria</p>
+        </div>
+    }
+</div>
+
+
+@if (showModal)
+{
+    <div class="admin-modal-overlay" @onclick="CloseModal">
+        <div class="admin-modal" @onclick:stopPropagation="true">
+            <div class="admin-modal-header">
+                <div class="admin-modal-title">@(isEditing ? "Edit Vehicle" : "Add New Vehicle")</div>
+                <button class="admin-modal-close" @onclick="CloseModal"><i class='bx bx-x'></i></button>
+            </div>
+            <div class="admin-modal-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="carName" placeholder="Name" @bind="editCar.Name" required />
+                            <label for="carName">Vehicle Name</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <select class="form-select" id="carCategory" @bind="editCar.Category">
+                                <option value="">Select category</option>
+                                @foreach (var cat in categories)
+                                {
+                                    <option value="@cat">@cat</option>
+                                }
+                            </select>
+                            <label for="carCategory">Category</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="number" class="form-control" id="carPrice" placeholder="Price" @bind="editCar.Price" />
+                            <label for="carPrice">Price per Day (Rs)</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="carSeats" placeholder="Seats" @bind="editCar.Seats" />
+                            <label for="carSeats">Seats</label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-floating">
+                            <input type="url" class="form-control" id="carImage" placeholder="Image URL" @bind="editCar.ImageUrl" />
+                            <label for="carImage">Image URL</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="carFuel" placeholder="Fuel" @bind="editCar.Fuel" />
+                            <label for="carFuel">Fuel Type</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="carTrans" placeholder="Transmission" @bind="editCar.Transmission" />
+                            <label for="carTrans">Transmission</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="carMileage" placeholder="Mileage" @bind="editCar.Mileage" />
+                            <label for="carMileage">Mileage</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-floating">
+                            <input type="text" class="form-control" id="carCondition" placeholder="Condition" @bind="editCar.Condition" />
+                            <label for="carCondition">Condition</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="admin-modal-footer">
+                <button class="admin-btn-sm red" @onclick="CloseModal" style="padding:0.5rem 1.25rem;">Cancel</button>
+                <button class="btn-pdm-primary" @onclick="SaveCar" style="font-size:0.85rem; padding:0.5rem 1.5rem;">
+                    <i class='bx bx-check me-1'></i> @(isEditing ? "Update" : "Add Vehicle")
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    
+    private List<Car> allCars = new(); 
+    private string searchQuery = ""; 
+    private string categoryFilter = ""; 
+    private CarStatus? statusFilter = null; 
+    
+    
+    private bool showModal = false; 
+    private bool isEditing = false; 
+    private Car editCar = new(); 
+
+    
+    private readonly string[] categories = { "Luxury Sedans", "SUVs", "Convertibles", "Electric", "Opulence", "Minivans", "Hatchbacks", "Crossovers", "Super Bikes", "Chopper Bikes" };
+
+    
+    private List<Car> FilteredCars => allCars
+        
+        .Where(c => string.IsNullOrEmpty(searchQuery) || c.Name.Contains(searchQuery, StringComparison.OrdinalIgnoreCase))
+        
+        .Where(c => string.IsNullOrEmpty(categoryFilter) || c.Category == categoryFilter)
+        
+        .Where(c => statusFilter == null || c.Status == statusFilter)
+        
+        .OrderBy(c => c.Category).ThenBy(c => c.Name)
+        .ToList();
+
+    
+    protected override async Task OnInitializedAsync() => allCars = await CarSvc.GetAllAsync();
+
+    
+    private void OpenAddModal()
+    {
+        editCar = new Car(); 
+        isEditing = false; 
+        showModal = true; 
+    }
+
+    
+    private void OpenEditModal(Car car)
+    {
+        
+        
+        editCar = new Car
+        {
+            Id = car.Id, Name = car.Name, Category = car.Category, Price = car.Price,
+            ImageUrl = car.ImageUrl, Seats = car.Seats, Fuel = car.Fuel,
+            Transmission = car.Transmission, Mileage = car.Mileage, Condition = car.Condition,
+            Status = car.Status
+        };
+        isEditing = true; 
+        showModal = true; 
+    }
+
+    
+    private void CloseModal() => showModal = false;
+
+    
+    private async Task SaveCar()
+    {
+        
+        if (isEditing)
+            await CarSvc.UpdateAsync(editCar);
+        
+        else
+            await CarSvc.AddAsync(editCar);
+
+        
+        allCars = await CarSvc.GetAllAsync();
+        showModal = false; 
+    }
+
+    
+    private async Task SetStatus(string id, CarStatus status)
+    {
+        await CarSvc.UpdateStatusAsync(id, status); 
+        allCars = await CarSvc.GetAllAsync(); 
+    }
+
+    
+    private async Task DeleteCar(string id)
+    {
+        await CarSvc.DeleteAsync(id); 
+        allCars = await CarSvc.GetAllAsync(); 
+    }
+}

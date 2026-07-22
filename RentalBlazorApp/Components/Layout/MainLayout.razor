@@ -1,0 +1,268 @@
+@inherits LayoutComponentBase
+@inject NavigationManager NavManager
+@inject RentalBlazorApp.Services.AuthService Auth
+
+
+<nav class="pdm-navbar" id="pdm-navbar">
+    
+    <a href="/" class="nav-brand">PDM<span> Rentals</span></a>
+
+    
+    <ul class="nav-links mb-0 ps-0">
+        <li><a href="/" class="@GetNavClass("/")">Home</a></li>
+        <li><a href="/categories" class="@GetNavClass("/categories")">Fleet</a></li>
+        <li><a href="/about" class="@GetNavClass("/about")">About</a></li>
+        <li><a href="/contact" class="@GetNavClass("/contact")">Contact</a></li>
+    </ul>
+
+    
+    <div class="nav-actions">
+        
+        <div class="nav-search d-none d-lg-flex">
+            <button type="button" aria-label="Search" @onclick="SearchCategory">
+                <i class='bx bx-search'></i>
+            </button>
+            <input type="text"
+                   placeholder="Search fleet..."
+                   @bind="searchQuery"
+                   @bind:event="oninput"
+                   @onkeyup="HandleSearchEnter" />
+        </div>
+
+        
+        <div class="d-none d-lg-flex align-items-center gap-2 ms-2">
+            @if (Auth.IsLoggedIn)
+            {
+                <div class="nav-user-wrap" @onmouseover="() => showUserMenu = true" @onmouseleave="() => showUserMenu = false">
+                    <button class="nav-user-btn">
+                        <div class="nav-user-avatar">@GetInitials()</div>
+                        <span class="nav-user-name">@Auth.CurrentUser?.FullName.Split(' ')[0]</span>
+                        <i class='bx bx-chevron-down' style="font-size:1.1rem;"></i>
+                    </button>
+                    @if (showUserMenu)
+                    {
+                        <div class="nav-user-dropdown">
+                            @if (Auth.IsAdmin)
+                            {
+                                <a href="/admin"><i class='bx bx-grid-alt'></i> Admin Dashboard</a>
+                                <div class="nav-user-divider"></div>
+                            }
+                            <a href="javascript:void(0)" @onclick="HandleLogout"><i class='bx bx-log-out'></i> Sign Out</a>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <a href="/login" class="nav-auth-btn login">Sign In</a>
+                <a href="/register" class="nav-auth-btn signup">Register</a>
+            }
+        </div>
+
+        
+        <button class="d-lg-none btn p-0 border-0 bg-transparent text-white fs-4 ms-3"
+                onclick="toggleMobileMenu()"
+                aria-label="Open menu">
+            <i class='bx bx-menu'></i>
+        </button>
+    </div>
+</nav>
+
+
+<div id="pdm-mobile-menu" class="nav-mobile-menu">
+    <a href="/" onclick="toggleMobileMenu()">Home</a>
+    <a href="/categories" onclick="toggleMobileMenu()">Fleet</a>
+    <a href="/about" onclick="toggleMobileMenu()">About</a>
+    <a href="/contact" onclick="toggleMobileMenu()">Contact</a>
+    @if (Auth.IsLoggedIn)
+    {
+        @if (Auth.IsAdmin)
+        {
+            <a href="/admin" onclick="toggleMobileMenu()" style="color:#60A5FA;">Admin Dashboard</a>
+        }
+        <a href="javascript:void(0)" @onclick="HandleLogout">Sign Out</a>
+    }
+    else
+    {
+        <a href="/login" onclick="toggleMobileMenu()">Sign In</a>
+        <a href="/register" onclick="toggleMobileMenu()">Register</a>
+    }
+    
+    <div class="mt-2">
+        <div class="input-group">
+            <input type="text" class="form-control bg-transparent text-white border-secondary"
+                   placeholder="Search fleet..."
+                   @bind="searchQuery"
+                   @bind:event="oninput"
+                   @onkeyup="HandleSearchEnter"
+                   style="color:white;" />
+            <button class="btn btn-outline-secondary text-white" @onclick="SearchCategory">
+                <i class='bx bx-search'></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+
+<main class="fade-in" style="padding-top: 72px;">
+    @Body
+</main>
+
+
+<footer class="pdm-footer">
+    <div class="container">
+        <div class="row g-5">
+            
+            <div class="col-12 col-lg-4 reveal">
+                <div class="pdm-footer-brand mb-2">PDM Rentals</div>
+                <p class="mb-4" style="font-size:0.875rem; max-width: 280px; line-height: 1.8;">
+                    Premium car rental experience. Curated vehicles for every journey — luxury, performance, and everyday drives.
+                </p>
+                <div class="pdm-footer-social d-flex gap-2">
+                    <a href="https://www.twitter.com" target="_blank" aria-label="Twitter"><i class='bx bxl-twitter'></i></a>
+                    <a href="https://www.facebook.com" target="_blank" aria-label="Facebook"><i class='bx bxl-facebook'></i></a>
+                    <a href="https://www.instagram.com" target="_blank" aria-label="Instagram"><i class='bx bxl-instagram-alt'></i></a>
+                </div>
+            </div>
+
+            
+            <div class="col-6 col-lg-2 reveal delay-100">
+                <h5>Navigate</h5>
+                <a href="/">Home</a>
+                <a href="/categories">Our Fleet</a>
+                <a href="/about">About Us</a>
+                <a href="/contact">Contact</a>
+            </div>
+
+            
+            <div class="col-6 col-lg-3 reveal delay-200">
+                <h5>Fleet</h5>
+                <a href="/luxurysedans">Luxury Sedans</a>
+                <a href="/suvs">SUVs</a>
+                <a href="/convertibles">Convertibles</a>
+                <a href="/electric">Electric Cars</a>
+                <a href="/opulence">Opulence</a>
+            </div>
+
+            
+            <div class="col-12 col-lg-3 reveal delay-300">
+                <h5>Legal</h5>
+                <a href="/policy">Privacy & Policy</a>
+                <a href="/contact">Support</a>
+                <div class="mt-4 p-3 rounded-3" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);">
+                    <div style="font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-bottom: 0.25rem;">Customer service</div>
+                    <div style="font-size: 0.9rem; color: rgba(255,255,255,0.8); font-weight: 600;">Available 24/7</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="pdm-footer-divider"></div>
+
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 pdm-footer-bottom">
+            <span>&copy; @DateTime.Now.Year PDM Rentals. All rights reserved.</span>
+            <span>Crafted with precision &amp; care.</span>
+        </div>
+    </div>
+</footer>
+
+@code {
+    
+    private string searchQuery = "";
+    
+    
+    private bool showUserMenu = false;
+
+    
+    protected override void OnInitialized()
+    {
+        
+        Auth.OnAuthStateChanged += StateHasChanged;
+    }
+
+    
+    public void Dispose()
+    {
+        Auth.OnAuthStateChanged -= StateHasChanged;
+    }
+
+    
+    private string GetInitials()
+    {
+        var name = Auth.CurrentUser?.FullName ?? "U"; 
+        var parts = name.Split(' ');
+        return parts.Length >= 2 ? $"{parts[0][0]}{parts[1][0]}" : $"{parts[0][0]}";
+    }
+
+    
+    private void HandleLogout()
+    {
+        showUserMenu = false;
+        Auth.Logout(); 
+        NavManager.NavigateTo("/", forceLoad: true); 
+    }
+
+    
+    private string GetNavClass(string path)
+    {
+        var currentUri = NavManager.Uri;
+        var baseUri = NavManager.BaseUri.TrimEnd('/');
+        var fullPath = baseUri + path;
+
+        
+        if (path == "/" && currentUri == baseUri + "/")
+            return "active";
+        
+        
+        if (path != "/" && currentUri.StartsWith(fullPath))
+            return "active";
+            
+        return ""; 
+    }
+
+    
+    private void HandleSearchEnter(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") SearchCategory();
+    }
+
+    
+    private void SearchCategory()
+    {
+        string query = searchQuery.ToLowerInvariant().Trim();
+        
+        
+        var categoryMap = new Dictionary<string, string>
+        {
+            { "luxury sedans", "/luxurysedans" },
+            { "sedans",        "/luxurysedans" },
+            { "suvs",          "/suvs" },
+            { "suv",           "/suvs" },
+            { "opulence",      "/opulence" },
+            { "convertibles",  "/convertibles" },
+            { "convertible",   "/convertibles" },
+            { "electric cars", "/electric" },
+            { "electric",      "/electric" },
+            { "minivans",      "/minivans" },
+            { "minivan",       "/minivans" },
+            { "hatchback",     "/hatchbacks" },
+            { "hatchbacks",    "/hatchbacks" },
+            { "crossovers",    "/crossovers" },
+            { "crossover",     "/crossovers" },
+            { "bikes",         "/bikes" },
+            { "super bikes",   "/bikes" },
+            { "chopper bikes", "/chopperbikes" },
+            { "chopper",       "/chopperbikes" },
+        };
+
+        
+        if (categoryMap.ContainsKey(query))
+            NavManager.NavigateTo(categoryMap[query]);
+        
+        else if (!string.IsNullOrEmpty(query))
+        {
+            var match = categoryMap.FirstOrDefault(c => c.Key.StartsWith(query) || c.Key.Contains(query));
+            if (!string.IsNullOrEmpty(match.Value))
+                NavManager.NavigateTo(match.Value); 
+        }
+    }
+}

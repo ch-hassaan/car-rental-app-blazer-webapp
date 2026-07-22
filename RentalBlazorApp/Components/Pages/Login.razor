@@ -1,0 +1,139 @@
+@page "/login"
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+<PageTitle>Sign In — PDM Rentals</PageTitle>
+
+
+<div class="pdm-page-hero" style="background-image: url('https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=2400&q=80'); min-height: 100vh;">
+    <div class="pdm-page-hero-overlay" style="background: linear-gradient(160deg, rgba(5,13,45,0.95) 0%, rgba(10,24,84,0.9) 50%, rgba(5,13,45,0.97) 100%);"></div>
+
+    <div class="pdm-page-hero-content container d-flex align-items-center justify-content-center" style="padding-top: 6rem; padding-bottom: 4rem; min-height: 100vh;">
+        <div class="auth-card reveal">
+            
+            <div class="text-center mb-4">
+                <a href="/" class="auth-brand">PDM<span> Rentals</span></a>
+                <p class="auth-subtitle">Welcome back — sign in to your account</p>
+            </div>
+
+            
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="auth-alert auth-alert-error">
+                    <i class='bx bx-error-circle'></i>
+                    @errorMessage
+                </div>
+            }
+
+            
+            <EditForm Model="@loginModel" OnValidSubmit="HandleLogin" FormName="loginForm">
+                <div class="auth-field">
+                    <div class="auth-field-icon">
+                        <i class='bx bx-envelope'></i>
+                    </div>
+                    <div class="form-floating flex-grow-1">
+                        <input type="email" class="form-control" id="loginEmail" placeholder="Email"
+                               @bind="loginModel.Email" required />
+                        <label for="loginEmail">Email Address</label>
+                    </div>
+                </div>
+
+                <div class="auth-field">
+                    <div class="auth-field-icon">
+                        <i class='bx bx-lock-alt'></i>
+                    </div>
+                    <div class="form-floating flex-grow-1">
+                        <input type="@(showPassword ? "text" : "password")" class="form-control" id="loginPassword"
+                               placeholder="Password" @bind="loginModel.Password" required />
+                        <label for="loginPassword">Password</label>
+                    </div>
+                    <button type="button" class="auth-toggle-pw" @onclick="() => showPassword = !showPassword">
+                        <i class='bx @(showPassword ? "bx-hide" : "bx-show")'></i>
+                    </button>
+                </div>
+
+                <button type="submit" class="btn-pdm-primary w-100 auth-submit" disabled="@isLoading">
+                    @if (isLoading)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                        <span>Signing in...</span>
+                    }
+                    else
+                    {
+                        <i class='bx bx-log-in-circle me-2'></i>
+                        <span>Sign In</span>
+                    }
+                </button>
+            </EditForm>
+
+            
+            <div class="auth-divider">
+                <span>New to PDM Rentals?</span>
+            </div>
+
+            
+            <a href="/register" class="btn-pdm-outline w-100 auth-submit" style="color: white; border-color: rgba(255,255,255,0.3);">
+                <i class='bx bx-user-plus me-2'></i>
+                Create Account
+            </a>
+
+            
+            <div class="text-center mt-4">
+                <a href="/" class="auth-back-link">
+                    <i class='bx bx-arrow-back me-1'></i>
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    
+    private LoginModel loginModel = new(); 
+    private string? errorMessage; 
+    private bool isLoading = false; 
+    private bool showPassword = false; 
+
+    
+    [SupplyParameterFromQuery(Name = "returnUrl")]
+    public string? ReturnUrl { get; set; }
+
+    
+    private async Task HandleLogin()
+    {
+        isLoading = true; 
+        errorMessage = null; 
+        StateHasChanged(); 
+
+        await Task.Delay(400); 
+
+        
+        var result = await Auth.LoginAsync(loginModel.Email, loginModel.Password);
+        
+        if (result.Success) 
+        {
+            string destination;
+            
+            if (Auth.IsAdmin) 
+                destination = "/admin"; 
+            else 
+                destination = string.IsNullOrWhiteSpace(ReturnUrl) ? "/" : ReturnUrl; 
+            
+            
+            Nav.NavigateTo(destination, forceLoad: false);
+        }
+        else 
+        {
+            errorMessage = result.Message; 
+            isLoading = false; 
+        }
+    }
+
+    
+    private class LoginModel
+    {
+        public string Email { get; set; } = "";
+        public string Password { get; set; } = "";
+    }
+}

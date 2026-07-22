@@ -1,0 +1,81 @@
+@inherits LayoutComponentBase
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+@if (!Auth.IsAdmin)
+{
+    <div class="d-flex align-items-center justify-content-center" style="min-height:100vh; background:#F1F5F9;">
+        <div class="text-center">
+            <i class='bx bx-lock-alt' style="font-size:3rem; color:#94A3B8;"></i>
+            <h3 class="mt-3" style="color:var(--color-navy);">Access Denied</h3>
+            <p style="color:#64748B;">You must be an admin to view this page.</p>
+            <a href="/admin/login" class="btn-pdm-primary">Sign In as Admin</a>
+        </div>
+    </div>
+}
+else
+{
+    
+    <button class="admin-hamburger" @onclick="ToggleSidebar">
+        <i class='bx bx-menu'></i>
+    </button>
+
+    <div class="admin-wrapper">
+        
+        <aside class="admin-sidebar @(sidebarOpen ? "open" : "")">
+            <div class="admin-sidebar-brand">
+                <a href="/">PDM<span> Rentals</span></a>
+            </div>
+
+            <div class="admin-sidebar-label">Main Menu</div>
+            <ul class="admin-sidebar-nav">
+                <li><a href="/admin" class="@GetNavClass("/admin")"><i class='bx bx-grid-alt'></i> Dashboard</a></li>
+                <li><a href="/admin/cars" class="@GetNavClass("/admin/cars")"><i class='bx bx-car'></i> Manage Cars</a></li>
+                <li><a href="/admin/bookings" class="@GetNavClass("/admin/bookings")"><i class='bx bx-calendar-check'></i> Bookings</a></li>
+                <li><a href="/admin/users" class="@GetNavClass("/admin/users")"><i class='bx bx-group'></i> Users</a></li>
+            </ul>
+
+            <div class="admin-sidebar-label">Quick Links</div>
+            <ul class="admin-sidebar-nav">
+                <li><a href="/" target="_blank"><i class='bx bx-link-external'></i> View Website</a></li>
+                <li><a href="/categories" target="_blank"><i class='bx bx-car'></i> Public Fleet</a></li>
+            </ul>
+
+            <div class="admin-sidebar-footer">
+                <a href="javascript:void(0)" @onclick="HandleLogout">
+                    <i class='bx bx-log-out'></i> Sign Out
+                </a>
+            </div>
+        </aside>
+
+        
+        <div class="admin-content">
+            @Body
+        </div>
+    </div>
+}
+
+@code {
+    private bool sidebarOpen = false;
+
+    private void ToggleSidebar() => sidebarOpen = !sidebarOpen;
+
+    private string GetNavClass(string path)
+    {
+        var uri = Nav.Uri;
+        var baseUri = Nav.BaseUri.TrimEnd('/');
+        var fullPath = baseUri + path;
+
+        if (path == "/admin" && (uri == fullPath || uri == fullPath + "/"))
+            return "active";
+        if (path != "/admin" && uri.StartsWith(fullPath))
+            return "active";
+        return "";
+    }
+
+    private void HandleLogout()
+    {
+        Auth.Logout();
+        Nav.NavigateTo("/", forceLoad: true);
+    }
+}

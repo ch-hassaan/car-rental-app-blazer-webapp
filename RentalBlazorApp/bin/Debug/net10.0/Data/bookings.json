@@ -1,0 +1,19 @@
+[
+  {
+    "Id": "50cad9ff-2b38-42b1-984d-db8c57f29326",
+    "UserId": null,
+    "CarId": "7cc44494-845c-40fa-8a62-c2020b8a7185",
+    "CarName": "Audi A5",
+    "FullName": "Hassaan Ch",
+    "Email": "hassaannazir22@gmail.com",
+    "Phone": "\u002B923315551150",
+    "LicenseNo": "abc-123",
+    "Address": "street 1 house 1",
+    "Days": 1,
+    "DailyRate": 220000,
+    "TotalAmount": 220000,
+    "PaymentMethod": "credit-card",
+    "Status": 1,
+    "CreatedAt": "2026-05-13T14:15:46.7885069Z"
+  }
+]

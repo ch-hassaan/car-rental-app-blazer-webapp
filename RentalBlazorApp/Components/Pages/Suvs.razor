@@ -1,0 +1,51 @@
+@page "/suvs"
+@inject RentalBlazorApp.Services.CarService CarSvc
+
+<PageTitle>SUVs — PDM Rentals</PageTitle>
+
+<div class="pdm-page-hero" style="background-image: url('https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?w=2400&q=80');">
+    <div class="pdm-page-hero-overlay"></div>
+    <div class="pdm-page-hero-content container">
+        <span class="section-eyebrow" style="color:rgba(255,255,255,0.5);">PDM Rentals</span>
+        <h1 class="pdm-page-hero-title slide-up">Premium SUVs</h1>
+        <p class="pdm-page-hero-sub slide-up delay-100">Command the road with power, space, and ultimate comfort.</p>
+    </div>
+</div>
+
+<section style="padding: 5rem 0; background: #F9FAFB;">
+    <div class="container">
+        @if (cars == null)
+        {
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status"></div>
+            </div>
+        }
+        else if (!cars.Any())
+        {
+            <div class="text-center py-5 text-muted">
+                <i class='bx bx-car' style="font-size:3rem; margin-bottom:1rem;"></i>
+                <h4>No cars available in this category.</h4>
+            </div>
+        }
+        else
+        {
+            <div class="row g-4">
+                @foreach (var car in cars)
+                {
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <RentalBlazorApp.Components.Shared.CarCard CarModel="@car" />
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    private List<RentalBlazorApp.Models.Car>? cars;
+
+    protected override async Task OnInitializedAsync()
+    {
+        cars = await CarSvc.GetByCategoryAsync("SUVs");
+    }
+}

@@ -1,0 +1,181 @@
+@page "/about"
+
+<PageTitle>About Us — PDM Rentals</PageTitle>
+
+
+<div class="pdm-page-hero" style="background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=2400&q=80');">
+    <div class="pdm-page-hero-overlay"></div>
+    <div class="pdm-page-hero-content container">
+        <span class="section-eyebrow" style="color:rgba(255,255,255,0.5);">Our Story</span>
+        <h1 class="pdm-page-hero-title slide-up">About PDM Rentals</h1>
+        <p class="pdm-page-hero-sub slide-up delay-100">Meet the passionate team building a premium rental experience.</p>
+    </div>
+</div>
+
+
+<section style="padding: 6rem 0; background: white;">
+    <div class="container">
+        <div class="row align-items-center g-5 mb-5 reveal">
+            <div class="col-lg-6">
+                <span class="section-eyebrow">Our Mission</span>
+                <h2 class="about-section-heading">Redefining the Way<br>You Rent a Vehicle</h2>
+                <p style="color:#64748B; line-height:1.85; margin-bottom:1rem; font-size:0.97rem;">
+                    PDM Rentals was founded with a single belief: that renting a car should feel as premium as driving one. We combine technology with personal service to deliver an experience that's seamless, transparent, and truly world-class.
+                </p>
+                <p style="color:#64748B; line-height:1.85; font-size:0.97rem;">
+                    From budget-conscious hatchbacks to once-in-a-lifetime Rolls-Royces, our curated fleet ensures there's a perfect match for every occasion and every person.
+                </p>
+            </div>
+            <div class="col-lg-6">
+                <div class="about-stats-grid">
+                    <div class="about-stat-card reveal">
+                        <div class="about-stat-num">500+</div>
+                        <div class="about-stat-lbl">Vehicles</div>
+                    </div>
+                    <div class="about-stat-card reveal delay-100">
+                        <div class="about-stat-num">10K+</div>
+                        <div class="about-stat-lbl">Customers</div>
+                    </div>
+                    <div class="about-stat-card reveal delay-200">
+                        <div class="about-stat-num">4.9★</div>
+                        <div class="about-stat-lbl">Avg Rating</div>
+                    </div>
+                    <div class="about-stat-card reveal delay-300">
+                        <div class="about-stat-num">24/7</div>
+                        <div class="about-stat-lbl">Support</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <div class="text-center mb-5 reveal" style="margin-top: 4rem;">
+            <span class="section-eyebrow">Our People</span>
+            <h2 class="about-section-heading" style="margin-bottom:0;">The Team Behind PDM</h2>
+        </div>
+
+        
+        <div class="row g-4 justify-content-center">
+            <div class="col-12 col-sm-6 col-lg-3 reveal">
+                <div class="team-card">
+                    <div class="team-avatar-wrap">
+                        <img src="hassaan.jpg" alt="Muhammad Hassaan" class="team-avatar"
+                             onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                        <div class="team-avatar-initials" style="display:none;">MH</div>
+                        <div class="team-avatar-ring"></div>
+                    </div>
+                    <h4 class="team-name">Muhammad Hassaan</h4>
+                    <div class="team-role">Lead Developer</div>
+                    <p class="team-bio">Passionate about software and team leadership, bringing innovative solutions to every challenge.</p>
+                </div>
+            </div>
+           
+            
+            </div>
+        </div>
+
+   
+</section>
+
+<style>
+.about-section-heading {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(1.75rem, 3vw, 2.5rem);
+    font-weight: 800;
+    color: #050D2D;
+    letter-spacing: -0.035em;
+    margin-bottom: 1.25rem;
+    line-height: 1.15;
+}
+.about-stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+.about-stat-card {
+    background: #F8FAFC;
+    border: 1px solid rgba(5,13,45,0.07);
+    border-radius: 18px;
+    padding: 2rem 1.25rem;
+    text-align: center;
+    transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.about-stat-card:hover {
+    border-color: rgba(37,99,235,0.25);
+    box-shadow: 0 12px 40px rgba(5,13,45,0.09);
+    transform: translateY(-5px);
+}
+.about-stat-num {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2.25rem; font-weight: 900;
+    color: #050D2D; line-height: 1;
+    margin-bottom: 0.5rem;
+}
+.about-stat-lbl {
+    font-size: 0.78rem; color: #64748B;
+    font-weight: 600; text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+.team-card {
+    background: white;
+    border: 1px solid rgba(5,13,45,0.07);
+    border-radius: 22px;
+    padding: 2.5rem 1.5rem 2rem;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(5,13,45,0.06);
+    transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+    height: 100%;
+}
+.team-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 24px 64px rgba(5,13,45,0.13);
+    border-color: rgba(37,99,235,0.18);
+}
+.team-avatar-wrap {
+    position: relative;
+    width: 100px; height: 100px;
+    margin: 0 auto 1.5rem;
+}
+.team-avatar {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    position: relative; z-index: 1;
+}
+.team-avatar-initials {
+    width: 100px; height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #2563EB, #60A5FA);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.6rem; font-weight: 800;
+    color: white;
+    position: relative; z-index: 1;
+}
+.team-avatar-ring {
+    position: absolute;
+    inset: -5px;
+    border-radius: 50%;
+    border: 2px solid rgba(37,99,235,0.25);
+    transition: border-color 0.3s, transform 0.3s;
+}
+.team-card:hover .team-avatar-ring {
+    border-color: #2563EB;
+    transform: scale(1.06);
+}
+.team-name {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem; font-weight: 700;
+    color: #050D2D; margin-bottom: 0.25rem;
+}
+.team-role {
+    font-size: 0.75rem; font-weight: 700;
+    color: #2563EB; text-transform: uppercase;
+    letter-spacing: 0.12em; margin-bottom: 0.9rem;
+}
+.team-bio {
+    font-size: 0.83rem; color: #64748B;
+    line-height: 1.75; margin: 0;
+}
+</style>

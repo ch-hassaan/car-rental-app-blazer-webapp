@@ -1,0 +1,131 @@
+@page "/categories"
+@inject NavigationManager NavManager
+@using RentalBlazorApp.Components.Shared
+
+<PageTitle>Our Fleet — PDM Rentals</PageTitle>
+
+
+<div class="pdm-page-hero" style="background-image: url('https://images.unsplash.com/photo-1580654712603-eb43273aff33?fm=jpg&q=80&w=2400');">
+    <div class="pdm-page-hero-overlay"></div>
+    <div class="pdm-page-hero-content container">
+        <span class="section-eyebrow" style="color: rgba(255,255,255,0.5);">PDM Rentals</span>
+        <h1 class="pdm-page-hero-title slide-up">Our Fleet</h1>
+        <p class="pdm-page-hero-sub slide-up delay-100">Your dream ride is just a booking away.</p>
+    </div>
+</div>
+
+
+<section style="padding: 5rem 0; background: #F9FAFB;">
+    <div class="container">
+        <div class="text-center mb-5 reveal">
+            <span class="section-eyebrow">Browse by Category</span>
+            <h2 style="font-family:'Outfit',sans-serif; font-size:clamp(1.75rem,3vw,2.5rem); font-weight:800; color:#050D2D; letter-spacing:-0.03em;">
+                Every Type. Every Journey.
+            </h2>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-12 col-md-6 col-lg-4 reveal">
+                <CategoryCard Title="Luxury Sedans" Description="Affordable and efficient cars for everyday use."
+                              ImageUrl="https://autos.hamariweb.com/article/thumbnails/honda-civic-2024-price-in-pakistan-a-comprehensive-overview.jpeg"
+                              Route="/luxurysedans" />
+            </div>
+            <div class="col-12 col-md-6 col-lg-4 reveal delay-100">
+                <CategoryCard Title="Opulence Cars" Description="Experience comfort and style with our ultra-premium vehicles."
+                              ImageUrl="https://www.topgear.com/sites/default/files/images/news-article/2020/11/86d1c7742a1e093a83487debca97eecd/20c0535_179.jpg"
+                              Route="/opulence" />
+            </div>
+            <div class="col-12 col-md-6 col-lg-4 reveal delay-200">
+                <CategoryCard Title="SUVs" Description="Perfect for families and off-road adventures."
+                              ImageUrl="https://larte-design.com/storage/app/media/blog/cadillac-escalade-review/images/cadillac-escalade-with-body-kit-by-larte-design-studio.webp"
+                              Route="/suvs" />
+            </div>
+            <div class="col-12 col-md-6 col-lg-4 reveal">
+                <CategoryCard Title="Convertibles" Description="Enjoy the open road with a sporty convertible."
+                              ImageUrl="https://www.mini.co.uk/en_GB/home/mini-news/convertible-seaside-edition/jcr:content/main/par/product_editorial_10/productEditorialPar/editorial_fullwidth__1716008769/leftPar/image_item/damImage.wide.1350w.j_1674060008963.jpg"
+                              Route="/convertibles" />
+            </div>
+            <div class="col-12 col-md-6 col-lg-4 reveal delay-100">
+                <CategoryCard Title="Electric Cars" Description="Drive green with our selection of electric cars."
+                              ImageUrl="https://images.carexpert.com.au/crop/1200/630/app/uploads/2024/01/BMW-i4-eDrive35_HERO-16x9-1.jpg"
+                              Route="/electric" />
+            </div>
+            <div class="col-12 col-md-6 col-lg-4 reveal delay-200">
+                <CategoryCard Title="Minivans" Description="Perfect for group travel and family trips."
+                              ImageUrl="https://cdn1.npcdn.net/images/77feadb55b7b02b37e31156b3fe7fe3c_1683616148.webp?md5id=baa9c50420112c3411e4d87614108554&new_width=1000&new_height=1000&w=1588155577&from=jpeg"
+                              Route="/minivans" />
+            </div>
+            <div class="col-12 col-md-6 col-lg-4 reveal">
+                <CategoryCard Title="Hatchbacks" Description="Perfect for small and tight city areas."
+                              ImageUrl="https://images.pistonheads.com/nimg/48939/blobid0.jpg"
+                              Route="/hatchbacks" />
+            </div>
+            <div class="col-12 col-md-6 col-lg-4 reveal delay-100">
+                <CategoryCard Title="Crossovers" Description="A great blend of hatchback efficiency and SUV size."
+                              ImageUrl="https://ev-database.org/img/auto/Porsche_Macan_Turbo_2024/Porsche_Macan_Turbo_2024-01%402x.jpg"
+                              Route="/crossovers" />
+            </div>
+            <div class="col-12 col-md-6 col-lg-4 reveal delay-200">
+                <CategoryCard Title="Super Bikes" Description="High-speed thrill and outstanding performance."
+                              ImageUrl="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTFc0v6cVy1gFnJfberh7SOQXEZocD3MKhhSg&s"
+                              Route="/bikes" />
+            </div>
+            <div class="col-12 col-md-6 col-lg-4 offset-lg-4 reveal delay-100">
+                <CategoryCard Title="Chopper Bikes" Description="Classic cruising style for the open highway."
+                              ImageUrl="https://res.cloudinary.com/italtour/image/upload/c_limit,f_auto,g_center,h_455,q_auto,w_780/v1491591102/ukh6lcqh9snjtnzep1mt.jpg"
+                              Route="/chopperbikes" />
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+
+.pdm-page-hero {
+    position: relative;
+    min-height: 42vh;
+    display: flex;
+    align-items: flex-end;
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+}
+.pdm-page-hero-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(
+        to bottom,
+        rgba(5,13,45,0.7) 0%,
+        rgba(5,13,45,0.85) 60%,
+        rgba(5,13,45,0.95) 100%
+    );
+}
+.pdm-page-hero-content {
+    position: relative;
+    z-index: 2;
+    padding-bottom: 4rem;
+    padding-top: 8rem;
+}
+.pdm-page-hero-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 900;
+    color: white;
+    letter-spacing: -0.04em;
+    margin-bottom: 0.75rem;
+}
+.pdm-page-hero-sub {
+    font-size: 1.05rem;
+    color: rgba(255,255,255,0.6);
+    margin: 0;
+    max-width: 480px;
+}
+.section-eyebrow {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: #2563EB;
+    margin-bottom: 0.75rem;
+}
+</style>

@@ -1,0 +1,174 @@
+@page "/admin/bookings"
+@layout Layout.AdminLayout
+@inject BookingService BookingSvc
+@inject CarService CarSvc
+
+<PageTitle>Manage Bookings — PDM Rentals Admin</PageTitle>
+
+<div class="admin-topbar">
+    <div>
+        <div class="admin-topbar-title">Booking Requests</div>
+        <div class="admin-topbar-sub">Review and manage all rental reservations</div>
+    </div>
+</div>
+
+
+<div class="d-flex flex-wrap gap-3 mb-4 align-items-center">
+    <div class="admin-search">
+        <i class='bx bx-search'></i>
+        <input type="text" placeholder="Search by name or email..." @bind="searchQuery" @bind:event="oninput" />
+    </div>
+    <div class="admin-filters">
+        <button class="admin-filter-btn @(statusFilter == null ? "active" : "")" @onclick="() => statusFilter = null">
+            All (@allBookings.Count)
+        </button>
+        <button class="admin-filter-btn @(statusFilter == BookingStatus.Pending ? "active" : "")" @onclick="() => statusFilter = BookingStatus.Pending">
+            Pending (@allBookings.Count(b => b.Status == BookingStatus.Pending))
+        </button>
+        <button class="admin-filter-btn @(statusFilter == BookingStatus.Approved ? "active" : "")" @onclick="() => statusFilter = BookingStatus.Approved">
+            Approved (@allBookings.Count(b => b.Status == BookingStatus.Approved))
+        </button>
+        <button class="admin-filter-btn @(statusFilter == BookingStatus.Rejected ? "active" : "")" @onclick="() => statusFilter = BookingStatus.Rejected">
+            Rejected (@allBookings.Count(b => b.Status == BookingStatus.Rejected))
+        </button>
+        <button class="admin-filter-btn @(statusFilter == BookingStatus.Completed ? "active" : "")" @onclick="() => statusFilter = BookingStatus.Completed">
+            Completed (@allBookings.Count(b => b.Status == BookingStatus.Completed))
+        </button>
+    </div>
+</div>
+
+
+<div class="admin-table-card">
+    <div class="admin-table-header">
+        <div class="admin-table-title">Reservations (@Filtered.Count)</div>
+    </div>
+
+    @if (Filtered.Any())
+    {
+        <div style="overflow-x:auto;">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Customer</th>
+                        <th>Contact</th>
+                        <th>Vehicle</th>
+                        <th>Duration</th>
+                        <th>Total</th>
+                        <th>Payment</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var b in Filtered)
+                    {
+                        <tr>
+                            <td>
+                                <div style="font-weight:600;">@b.FullName</div>
+                                <div style="font-size:0.72rem;color:#94A3B8;">License: @b.LicenseNo</div>
+                            </td>
+                            <td>
+                                <div style="font-size:0.82rem;">@b.Email</div>
+                                <div style="font-size:0.75rem;color:#94A3B8;">@b.Phone</div>
+                            </td>
+                            <td style="font-weight:500;">@b.CarName</td>
+                            <td>@b.Days day@(b.Days > 1 ? "s" : "")</td>
+                            <td style="font-weight:700;">@b.TotalAmount.ToString("N0") Rs</td>
+                            <td style="font-size:0.82rem; text-transform:capitalize;">@b.PaymentMethod</td>
+                            <td><span class="status-badge status-@b.Status.ToString().ToLower()">@b.Status</span></td>
+                            <td style="font-size:0.78rem;color:#94A3B8;">@b.CreatedAt.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <div class="d-flex gap-1 flex-wrap">
+                                    @if (b.Status == BookingStatus.Pending)
+                                    {
+                                        <button class="admin-btn-sm green" @onclick="() => UpdateStatus(b.Id, BookingStatus.Approved)">
+                                            <i class='bx bx-check'></i> Approve
+                                        </button>
+                                        <button class="admin-btn-sm red" @onclick="() => UpdateStatus(b.Id, BookingStatus.Rejected)">
+                                            <i class='bx bx-x'></i> Reject
+                                        </button>
+                                    }
+                                    @if (b.Status == BookingStatus.Approved)
+                                    {
+                                        <button class="admin-btn-sm purple" @onclick="() => UpdateStatus(b.Id, BookingStatus.Completed)">
+                                            <i class='bx bx-check-double'></i> Complete
+                                        </button>
+                                    }
+                                    <button class="admin-btn-sm red" @onclick="() => DeleteBooking(b.Id)">
+                                        <i class='bx bx-trash'></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5" style="color:#94A3B8;">
+            <i class='bx bx-calendar-x' style="font-size:2.5rem;"></i>
+            <p class="mt-2 mb-0">No bookings found</p>
+        </div>
+    }
+</div>
+
+@code {
+    
+    private List<Booking> allBookings = new(); 
+    private string searchQuery = ""; 
+    private BookingStatus? statusFilter = null; 
+
+    
+    private List<Booking> Filtered => allBookings
+        
+        .Where(b => string.IsNullOrEmpty(searchQuery) ||
+            b.FullName.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+            b.Email.Contains(searchQuery, StringComparison.OrdinalIgnoreCase))
+        
+        .Where(b => statusFilter == null || b.Status == statusFilter)
+        
+        .OrderByDescending(b => b.CreatedAt)
+        .ToList();
+
+    
+    protected override async Task OnInitializedAsync()
+    {
+        allBookings = await BookingSvc.GetAllAsync(); 
+    }
+
+    
+    private async Task UpdateStatus(string id, BookingStatus status)
+    {
+        
+        await BookingSvc.UpdateStatusAsync(id, status);
+
+        
+        if (status == BookingStatus.Approved)
+        {
+            var booking = allBookings.FirstOrDefault(b => b.Id == id);
+            if (booking != null)
+                await CarSvc.UpdateStatusAsync(booking.CarId, CarStatus.Booked); 
+        }
+
+        
+        if (status == BookingStatus.Completed)
+        {
+            var booking = allBookings.FirstOrDefault(b => b.Id == id);
+            if (booking != null)
+                await CarSvc.UpdateStatusAsync(booking.CarId, CarStatus.Available); 
+        }
+
+        
+        allBookings = await BookingSvc.GetAllAsync();
+    }
+
+    // Deletes a booking record permanently
+    private async Task DeleteBooking(string id)
+    {
+        await BookingSvc.DeleteAsync(id);
+        allBookings = await BookingSvc.GetAllAsync(); // Refresh list
+    }
+}

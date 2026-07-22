@@ -1,0 +1,205 @@
+@page "/register"
+@inject AuthService Auth
+@inject NavigationManager Nav
+
+<PageTitle>Create Account — PDM Rentals</PageTitle>
+
+
+<div class="pdm-page-hero" style="background-image: url('https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=2400&q=80'); min-height: 100vh;">
+    <div class="pdm-page-hero-overlay" style="background: linear-gradient(160deg, rgba(5,13,45,0.95) 0%, rgba(10,24,84,0.9) 50%, rgba(5,13,45,0.97) 100%);"></div>
+
+    <div class="pdm-page-hero-content container d-flex align-items-center justify-content-center" style="padding-top: 6rem; padding-bottom: 4rem; min-height: 100vh;">
+        <div class="auth-card reveal">
+            
+            <div class="text-center mb-4">
+                <a href="/" class="auth-brand">PDM<span> Rentals</span></a>
+                <p class="auth-subtitle">Join the premium rental experience</p>
+            </div>
+
+            
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="auth-alert auth-alert-error">
+                    <i class='bx bx-error-circle'></i>
+                    @errorMessage
+                </div>
+            }
+
+            
+            <EditForm Model="@regModel" OnValidSubmit="HandleRegister" FormName="registerForm">
+                <div class="auth-field">
+                    <div class="auth-field-icon">
+                        <i class='bx bx-user'></i>
+                    </div>
+                    <div class="form-floating flex-grow-1">
+                        <input type="text" class="form-control" id="regName" placeholder="Full Name"
+                               @bind="regModel.FullName" required />
+                        <label for="regName">Full Name</label>
+                    </div>
+                </div>
+
+                <div class="auth-field">
+                    <div class="auth-field-icon">
+                        <i class='bx bx-envelope'></i>
+                    </div>
+                    <div class="form-floating flex-grow-1">
+                        <input type="email" class="form-control" id="regEmail" placeholder="Email"
+                               @bind="regModel.Email" required />
+                        <label for="regEmail">Email Address</label>
+                    </div>
+                </div>
+
+                <div class="auth-field">
+                    <div class="auth-field-icon">
+                        <i class='bx bx-lock-alt'></i>
+                    </div>
+                    <div class="form-floating flex-grow-1">
+                        <input type="@(showPassword ? "text" : "password")" class="form-control" id="regPassword"
+                               placeholder="Password" @bind="regModel.Password" required minlength="6" />
+                        <label for="regPassword">Password (min 6 chars)</label>
+                    </div>
+                    <button type="button" class="auth-toggle-pw" @onclick="() => showPassword = !showPassword">
+                        <i class='bx @(showPassword ? "bx-hide" : "bx-show")'></i>
+                    </button>
+                </div>
+
+                <div class="auth-field">
+                    <div class="auth-field-icon">
+                        <i class='bx bx-check-shield'></i>
+                    </div>
+                    <div class="form-floating flex-grow-1">
+                        <input type="@(showPassword ? "text" : "password")" class="form-control" id="regConfirm"
+                               placeholder="Confirm" @bind="regModel.ConfirmPassword" required />
+                        <label for="regConfirm">Confirm Password</label>
+                    </div>
+                </div>
+
+                
+                @if (!string.IsNullOrEmpty(regModel.Password))
+                {
+                    <div class="auth-pw-strength">
+                        <div class="auth-pw-bar">
+                            <div class="auth-pw-fill" style="width: @(GetPasswordStrength())%; background: @GetPasswordColor();"></div>
+                        </div>
+                        <span style="font-size: 0.72rem; color: @GetPasswordColor();">@GetPasswordLabel()</span>
+                    </div>
+                }
+
+                <button type="submit" class="btn-pdm-primary w-100 auth-submit" disabled="@isLoading">
+                    @if (isLoading)
+                    {
+                        <span class="spinner-border spinner-border-sm me-2"></span>
+                        <span>Creating account...</span>
+                    }
+                    else
+                    {
+                        <i class='bx bx-user-plus me-2'></i>
+                        <span>Create Account</span>
+                    }
+                </button>
+            </EditForm>
+
+            
+            <div class="auth-divider">
+                <span>Already have an account?</span>
+            </div>
+
+            
+            <a href="/login" class="btn-pdm-outline w-100 auth-submit" style="color: white; border-color: rgba(255,255,255,0.3);">
+                <i class='bx bx-log-in-circle me-2'></i>
+                Sign In
+            </a>
+
+            
+            <div class="text-center mt-4">
+                <a href="/" class="auth-back-link">
+                    <i class='bx bx-arrow-back me-1'></i>
+                    Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    // Variables to hold the current state of the registration page
+    private RegisterModel regModel = new(); // Stores the user's input (Name, Email, Passwords)
+    private string? errorMessage; // Stores error messages (like "Passwords do not match")
+    private bool isLoading = false; // Controls the loading spinner on the submit button
+    private bool showPassword = false; // Toggles whether to show the password text or hide it as asterisks
+
+    // Called when the user clicks "Create Account"
+    private async Task HandleRegister()
+    {
+        isLoading = true; // Start loading animation
+        errorMessage = null; // Clear old errors
+        StateHasChanged(); // Tell the UI to update
+
+        // Basic Validation: Ensure the two passwords match
+        if (regModel.Password != regModel.ConfirmPassword)
+        {
+            errorMessage = "Passwords do not match."; // Show error
+            isLoading = false; // Stop loading
+            return; // Stop the registration process
+        }
+
+        // Basic Validation: Ensure password is long enough
+        if (regModel.Password.Length < 6)
+        {
+            errorMessage = "Password must be at least 6 characters.";
+            isLoading = false;
+            return;
+        }
+
+        await Task.Delay(400); // Small delay for visual polish
+
+        // Ask the AuthService to create the new account
+        var result = await Auth.RegisterAsync(regModel.FullName, regModel.Email, regModel.Password);
+        
+        if (result.Success) // If creation worked
+        {
+            // Send the user to the home page, and force a page reload to update the navigation bar
+            Nav.NavigateTo("/", forceLoad: true);
+        }
+        else // If creation failed (e.g. email already in use)
+        {
+            errorMessage = result.Message; // Show the error from the service
+            isLoading = false; // Stop loading
+        }
+    }
+
+    // Calculates a "score" for how strong the password is (0 to 100)
+    private int GetPasswordStrength()
+    {
+        var pw = regModel.Password ?? "";
+        int score = 0;
+        if (pw.Length >= 6) score += 25; // Good length
+        if (pw.Length >= 10) score += 25; // Great length
+        if (pw.Any(char.IsUpper)) score += 25; // Contains an uppercase letter
+        if (pw.Any(c => !char.IsLetterOrDigit(c))) score += 25; // Contains a special character (e.g., !@#)
+        return score;
+    }
+
+    // Returns a color (Red, Orange, Blue, Green) based on the password strength score
+    private string GetPasswordColor()
+    {
+        var s = GetPasswordStrength();
+        return s <= 25 ? "#EF4444" : s <= 50 ? "#F59E0B" : s <= 75 ? "#60A5FA" : "#22C55E";
+    }
+
+    // Returns a text label ("Weak", "Fair", etc.) based on the password strength score
+    private string GetPasswordLabel()
+    {
+        var s = GetPasswordStrength();
+        return s <= 25 ? "Weak" : s <= 50 ? "Fair" : s <= 75 ? "Good" : "Strong";
+    }
+
+    // A model class mapping exactly to the input fields on the screen
+    private class RegisterModel
+    {
+        public string FullName { get; set; } = "";
+        public string Email { get; set; } = "";
+        public string Password { get; set; } = "";
+        public string ConfirmPassword { get; set; } = "";
+    }
+}

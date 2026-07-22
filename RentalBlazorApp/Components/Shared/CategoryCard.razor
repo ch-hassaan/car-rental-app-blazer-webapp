@@ -1,0 +1,122 @@
+@inject NavigationManager NavManager
+
+<div class="pdm-cat-card" @onclick='() => NavManager.NavigateTo(Route)' role="button" tabindex="0"
+     @onkeydown='(e) => { if (e.Key == "Enter") NavManager.NavigateTo(Route); }'>
+
+    
+    <div class="pdm-cat-img-wrap">
+        <img src="@ImageUrl" alt="@Title" class="pdm-cat-img" loading="lazy" />
+        <div class="pdm-cat-overlay"></div>
+    </div>
+
+    
+    <div class="pdm-cat-content">
+        <div class="pdm-cat-title">@Title</div>
+        <div class="pdm-cat-desc">@Description</div>
+        <div class="pdm-cat-cta">
+            Explore <i class='bx bx-right-arrow-alt'></i>
+        </div>
+    </div>
+</div>
+
+<style>
+
+.pdm-cat-card {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    cursor: pointer;
+    height: 280px;
+    display: block;
+}
+
+.pdm-cat-img-wrap {
+    position: absolute;
+    inset: 0;
+}
+.pdm-cat-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.65s cubic-bezier(0.4,0,0.2,1);
+    display: block;
+}
+.pdm-cat-card:hover .pdm-cat-img {
+    transform: scale(1.08);
+}
+
+
+.pdm-cat-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        to top,
+        rgba(5,13,45,0.92) 0%,
+        rgba(5,13,45,0.45) 45%,
+        rgba(5,13,45,0.1)  100%
+    );
+    transition: background 0.4s;
+}
+.pdm-cat-card:hover .pdm-cat-overlay {
+    background: linear-gradient(
+        to top,
+        rgba(5,13,45,0.96) 0%,
+        rgba(5,13,45,0.6)  50%,
+        rgba(5,13,45,0.15) 100%
+    );
+}
+
+
+.pdm-cat-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1.75rem 1.5rem;
+}
+.pdm-cat-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 0.4rem;
+    line-height: 1.2;
+}
+.pdm-cat-desc {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.55;
+    margin-bottom: 0.75rem;
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.4s ease, opacity 0.4s ease, margin 0.3s;
+}
+.pdm-cat-card:hover .pdm-cat-desc {
+    max-height: 60px;
+    opacity: 1;
+    margin-bottom: 0.75rem;
+}
+.pdm-cat-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #60A5FA;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    transition: transform 0.3s, gap 0.3s;
+}
+.pdm-cat-card:hover .pdm-cat-cta {
+    transform: translateX(4px);
+    gap: 0.5rem;
+}
+</style>
+
+@code {
+    [Parameter] public string Title       { get; set; } = string.Empty;
+    [Parameter] public string Description { get; set; } = string.Empty;
+    [Parameter] public string ImageUrl    { get; set; } = string.Empty;
+    [Parameter] public string Route       { get; set; } = string.Empty;
+}
