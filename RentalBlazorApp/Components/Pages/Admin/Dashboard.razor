@@ -3,7 +3,9 @@
 @inject CarService CarSvc
 @inject BookingService BookingSvc
 @inject AuthService Auth
-
+@inject RentalBlazorApp.Services.Interfaces.IMonthlyReportService MonthlyReportService
+@inject RentalBlazorApp.Services.Interfaces.IPdfService PdfService
+@inject IJSRuntime JS
 <PageTitle>Admin Dashboard — PDM Rentals</PageTitle>
 
 
@@ -95,6 +97,89 @@
     }
 </div>
 
+<div class="row g-3 reveal mb-4">
+    <div class="col-md-7">
+        <div class="admin-table-card h-100">
+            <div class="admin-table-header">
+                <div class="admin-table-title">Monthly Sales Report</div>
+            </div>
+            @if (monthlyRevenues.Any())
+            {
+                <div style="overflow-x: auto;">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Month</th>
+                                <th style="text-align:right;">Total Revenue</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var mr in monthlyRevenues)
+                            {
+                                <tr>
+                                    <td style="font-weight:600; color:var(--color-navy);">@mr.Month</td>
+                                    <td style="font-weight:700; text-align:right; color:#22C55E;">@mr.Revenue.ToString("N0") Rs</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="text-center py-4" style="color:#94A3B8;">
+                    <i class='bx bx-bar-chart' style="font-size:2rem;"></i>
+                    <p class="mt-2 mb-0">No sales data available yet</p>
+                </div>
+            }
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="admin-table-card h-100">
+            <div class="admin-table-header">
+                <div class="admin-table-title">Generate PDF Report</div>
+            </div>
+            <div class="p-4">
+                <div class="row g-3 mb-4">
+                    <div class="col-6">
+                        <label class="form-label" style="font-weight:600;font-size:0.85rem;color:#64748B;">Month</label>
+                        <select class="form-select" @bind="selectedMonth">
+                            @for (int i = 1; i <= 12; i++)
+                            {
+                                <option value="@i">@(new DateTime(2000, i, 1).ToString("MMMM"))</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label" style="font-weight:600;font-size:0.85rem;color:#64748B;">Year</label>
+                        <select class="form-select" @bind="selectedYear">
+                            @for (int i = DateTime.Now.Year; i >= DateTime.Now.Year - 5; i--)
+                            {
+                                <option value="@i">@i</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <button class="btn-pdm-primary w-100" @onclick="GenerateMonthlyReport" disabled="@isGeneratingReport">
+                    @if (isGeneratingReport)
+                    {
+                        <span><i class='bx bx-loader-alt bx-spin me-2'></i> Generating...</span>
+                    }
+                    else
+                    {
+                        <span><i class='bx bxs-file-pdf me-2'></i> Generate Monthly Report</span>
+                    }
+                </button>
+                @if (!string.IsNullOrEmpty(reportMessage))
+                {
+                    <div class="mt-3 text-center" style="font-size:0.85rem; color:#EF4444;">
+                        <i class='bx bx-info-circle'></i> @reportMessage
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="row g-3 reveal">
     <div class="col-md-4">
@@ -127,6 +212,18 @@
     // A list to hold the 5 most recent bookings for the summary table
     private List<Booking> recentBookings = new();
 
+    private class MonthlyRevenue
+    {
+        public string Month { get; set; } = "";
+        public int Revenue { get; set; }
+    }
+    private List<MonthlyRevenue> monthlyRevenues = new();
+
+    private int selectedMonth = DateTime.Now.Month;
+    private int selectedYear = DateTime.Now.Year;
+    private bool isGeneratingReport = false;
+    private string reportMessage = "";
+
     // This method runs automatically when the admin dashboard loads
     protected override async Task OnInitializedAsync()
     {
@@ -144,6 +241,18 @@
         
         // Grab the 5 most recent bookings to display in the table
         recentBookings = bookings.OrderByDescending(b => b.CreatedAt).Take(5).ToList();
+
+        // Calculate Monthly Sales Report
+        monthlyRevenues = bookings
+            .Where(b => b.Status == BookingStatus.Approved || b.Status == BookingStatus.Completed)
+            .GroupBy(b => new { b.CreatedAt.Year, b.CreatedAt.Month })
+            .OrderByDescending(g => g.Key.Year).ThenByDescending(g => g.Key.Month)
+            .Select(g => new MonthlyRevenue 
+            { 
+                Month = new DateTime(g.Key.Year, g.Key.Month, 1).ToString("MMMM yyyy"), 
+                Revenue = g.Sum(b => b.TotalAmount) 
+            })
+            .ToList();
     }
 
     // Helper method to get the user's initials for the circular avatar (e.g., "John Doe" -> "JD")
@@ -153,5 +262,41 @@
         var parts = name.Split(' '); // Split name by spaces
         // If they have a first and last name, take the first letter of both. Otherwise, just the first letter.
         return parts.Length >= 2 ? $"{parts[0][0]}{parts[1][0]}" : $"{parts[0][0]}";
+    }
+
+    private async Task GenerateMonthlyReport()
+    {
+        isGeneratingReport = true;
+        reportMessage = "";
+        StateHasChanged();
+
+        try
+        {
+            var reportData = await MonthlyReportService.GetMonthlyReportDataAsync(selectedYear, selectedMonth);
+            
+            if (reportData == null || !reportData.Bookings.Any())
+            {
+                reportMessage = "No booking data is available for the selected month.";
+            }
+            else
+            {
+                var pdfBytes = PdfService.GenerateMonthlyReport(reportData);
+                var fileName = $"PDM-Rentals-Report-{selectedYear}-{selectedMonth:D2}.pdf";
+                var base64 = Convert.ToBase64String(pdfBytes);
+                
+                await JS.InvokeVoidAsync("pdmDownloadFile", fileName, base64);
+                reportMessage = "Report downloaded successfully.";
+            }
+        }
+        catch (Exception ex)
+        {
+            reportMessage = "An error occurred while generating the report.";
+            Console.WriteLine($"Error generating report: {ex}");
+        }
+        finally
+        {
+            isGeneratingReport = false;
+            StateHasChanged();
+        }
     }
 }

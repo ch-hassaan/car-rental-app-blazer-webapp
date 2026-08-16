@@ -20,6 +20,7 @@
 
     
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="css/chatbot.css" />
     <link rel="stylesheet" href="@Assets["RentalBlazorApp.styles.css"]" />
     <ImportMap />
     <link rel="icon" type="image/png" href="favicon.png" />
@@ -36,6 +37,7 @@
 
     
     <script src="_framework/blazor.web.js"></script>
+    <script src="js/chatVoice.js"></script>
 
     
     <script>
@@ -126,6 +128,36 @@
         document.addEventListener('blazor:afterUpdate', () => {
             observeRevealElements();
         });
+
+        // ── PDM CHAT HELPERS ───────────────────────────────
+        // Called by ChatWindow.razor via IJSRuntime.
+
+        // Scrolls the element with the given id instantly to its bottom.
+        window.pdmChatScrollToBottom = function(elementId) {
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.scrollTop = el.scrollHeight;
+            }
+        };
+
+        // Focuses the element with the given id.
+        // Wrapped in a rAF so the DOM is always settled before focus.
+        window.pdmChatFocus = function(elementId) {
+            requestAnimationFrame(() => {
+                const el = document.getElementById(elementId);
+                if (el) el.focus();
+            });
+        };
+
+        // ── FILE DOWNLOAD HELPER ──────────────────────────────────
+        window.pdmDownloadFile = function(fileName, base64String) {
+            const link = document.createElement('a');
+            link.download = fileName;
+            link.href = 'data:application/octet-stream;base64,' + base64String;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        };
     </script>
 </body>
 

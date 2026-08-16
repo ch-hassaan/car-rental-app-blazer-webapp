@@ -1,0 +1,26 @@
+# .NET Core
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Development settings
+appsettings.Development.json
+
+# Local environments
+.env
+.env.local
+
+# Databases
+*.db
+*.db-shm
+*.db-wal
+
+# IDE / OS
+.vscode/
+.vs/
+.idea/
+.DS_Store
+Thumbs.db

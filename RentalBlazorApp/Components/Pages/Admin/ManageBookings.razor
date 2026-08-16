@@ -2,6 +2,9 @@
 @layout Layout.AdminLayout
 @inject BookingService BookingSvc
 @inject CarService CarSvc
+@inject RentalBlazorApp.Services.Interfaces.IPdfService PdfService
+@inject RentalBlazorApp.Services.Interfaces.IEmailService EmailService
+@inject IJSRuntime JS
 
 <PageTitle>Manage Bookings — PDM Rentals Admin</PageTitle>
 
@@ -95,6 +98,12 @@
                                             <i class='bx bx-check-double'></i> Complete
                                         </button>
                                     }
+                                    <button class="admin-btn-sm blue" @onclick="() => DownloadPdf(b)" title="Download Receipt">
+                                        <i class='bx bxs-file-pdf'></i>
+                                    </button>
+                                    <button class="admin-btn-sm yellow" @onclick="() => ResendEmail(b)" title="Resend Confirmation Email">
+                                        <i class='bx bx-mail-send'></i>
+                                    </button>
                                     <button class="admin-btn-sm red" @onclick="() => DeleteBooking(b.Id)">
                                         <i class='bx bx-trash'></i>
                                     </button>
@@ -170,5 +179,35 @@
     {
         await BookingSvc.DeleteAsync(id);
         allBookings = await BookingSvc.GetAllAsync(); // Refresh list
+    }
+
+    private async Task DownloadPdf(Booking booking)
+    {
+        try
+        {
+            var pdfBytes = PdfService.GenerateBookingReceipt(booking);
+            var fileName = $"PDM-Rentals-Booking-{booking.Id.Substring(0, 8).ToUpper()}.pdf";
+            var base64 = Convert.ToBase64String(pdfBytes);
+            await JS.InvokeVoidAsync("pdmDownloadFile", fileName, base64);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[PDF Error] {ex.Message}");
+        }
+    }
+
+    private async Task ResendEmail(Booking booking)
+    {
+        try
+        {
+            var pdfBytes = PdfService.GenerateBookingReceipt(booking);
+            await EmailService.SendBookingConfirmationAsync(booking, pdfBytes);
+            // In a real app, maybe show a toast notification here
+            Console.WriteLine($"[Email] Successfully resent to {booking.Email}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Email Error] {ex.Message}");
+        }
     }
 }

@@ -3,6 +3,9 @@
 @inject BookingService BookingSvc
 @inject CarService CarSvc
 @inject NavigationManager Nav
+@inject RentalBlazorApp.Services.Interfaces.IPdfService PdfService
+@inject RentalBlazorApp.Services.Interfaces.IEmailService EmailService
+@inject IJSRuntime JS
 @implements IDisposable
 
 <PageTitle>Secure Checkout — PDM Rentals</PageTitle>
@@ -61,11 +64,26 @@
                     <h2 class="success-title">Booking Confirmed!</h2>
                     <p class="success-desc">
                         Thank you for choosing PDM Rentals. Your reservation has been successfully placed.<br>
-                        Check your email for confirmation details.
+                        @if (emailFailed)
+                        {
+                            <span class="text-warning"><i class='bx bx-error-circle'></i> Your booking was successfully created, but we were unable to send the confirmation email. You can still download your booking receipt below.</span>
+                        }
+                        else
+                        {
+                            <span>Check your email for confirmation details.</span>
+                        }
                     </p>
-                    <a href="/categories" class="btn-pdm-primary" style="margin: 0 auto; display:inline-flex;">
-                        Return to Fleet <i class='bx bx-right-arrow-alt'></i>
-                    </a>
+                    <div class="d-flex justify-content-center gap-3 mt-4" style="flex-wrap: wrap;">
+                        @if (generatedPdf != null)
+                        {
+                            <button @onclick="DownloadReceipt" class="btn-pdm-primary" style="display:inline-flex; align-items:center;">
+                                <i class='bx bxs-file-pdf me-2'></i> Download Receipt
+                            </button>
+                        }
+                        <a href="/categories" class="btn-pdm-outline" style="display:inline-flex; align-items:center;">
+                            Return to Fleet <i class='bx bx-right-arrow-alt'></i>
+                        </a>
+                    </div>
                 </div>
             }
             else
@@ -232,6 +250,8 @@
     private Car? car; 
     private Booking booking = new() { Days = 1 }; 
     private bool formSubmitted = false; 
+    private bool emailFailed = false;
+    private byte[]? generatedPdf = null;
 
     
     protected override async Task OnInitializedAsync()
@@ -286,7 +306,34 @@
         
         await BookingSvc.AddAsync(booking);
         
+        try 
+        {
+            generatedPdf = PdfService.GenerateBookingReceipt(booking);
+            await EmailService.SendBookingConfirmationAsync(booking, generatedPdf);
+        }
+        catch (Exception ex)
+        {
+            // Log exception here in a real app
+            Console.WriteLine($"[Email/PDF Error] {ex.Message}");
+            emailFailed = true;
+            
+            if (generatedPdf == null) 
+            {
+                try { generatedPdf = PdfService.GenerateBookingReceipt(booking); }
+                catch { /* Ignore if PDF also fails */ }
+            }
+        }
         
         formSubmitted = true;
+    }
+
+    private async Task DownloadReceipt()
+    {
+        if (generatedPdf != null)
+        {
+            var fileName = $"PDM-Rentals-Booking-{booking.Id.Substring(0, 8).ToUpper()}.pdf";
+            var base64 = Convert.ToBase64String(generatedPdf);
+            await JS.InvokeVoidAsync("pdmDownloadFile", fileName, base64);
+        }
     }
 }

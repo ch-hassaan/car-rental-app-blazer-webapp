@@ -6,6 +6,7 @@ using RentalBlazorApp.Models;
 using RentalBlazorApp.Services; 
 using RentalBlazorApp.Services.AI; 
 using RentalBlazorApp.Services.AI.Interfaces; 
+using RentalBlazorApp.Services.Interfaces;
 #nullable enable
 
 using Supabase; 
@@ -60,8 +61,28 @@ builder.Services.AddHttpClient<IGroqService, GroqService>("GroqClient", (service
 builder.Services.AddScoped<IPromptService, PromptService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 
+builder.Services.Configure<EmailSettings>(
+    builder.Configuration.GetSection("EmailSettings"));
+
+builder.Services.AddScoped<IPdfService, PdfService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IMonthlyReportService, MonthlyReportService>();
+
+QuestPDF.Settings.License = QuestPDF.Infrastructure.LicenseType.Community;
+
 
 builder.Services.AddControllers();
+
+// ── HttpClient for Blazor Server components (ChatWindow) ──────────────────────
+builder.Services.AddHttpClient("BlazorSelf")
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+    {
+        ServerCertificateCustomValidationCallback = (message, cert, chain, errors) => true
+    });
+
+// Register a default HttpClient that Blazor components can @inject.
+builder.Services.AddScoped(sp =>
+    sp.GetRequiredService<IHttpClientFactory>().CreateClient("BlazorSelf"));
 
 
 var app = builder.Build();
@@ -72,7 +93,13 @@ using (var scope = app.Services.CreateScope())
     
     var dbFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>();
 
-    
+    // Ensure the Data directory exists for SQLite to create the db file in Azure App Service
+    var dbDir = Path.Combine(Directory.GetCurrentDirectory(), "Data");
+    if (!Directory.Exists(dbDir))
+    {
+        Directory.CreateDirectory(dbDir);
+    }
+
     using (var ctx = dbFactory.CreateDbContext())
         await ctx.Database.MigrateAsync();
 

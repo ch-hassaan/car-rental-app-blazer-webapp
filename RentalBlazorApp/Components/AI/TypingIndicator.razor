@@ -1,15 +1,30 @@
+@using RentalBlazorApp.Models.AI
 
+@* ──────────────────────────────────────────────────────────
+   TypingIndicator — animated three-dot loading bubble.
+   Rendered inside the chat body when _isLoading == true.
+   ────────────────────────────────────────────────────────── *@
 
 @if (IsVisible)
 {
-    <div class="typing-indicator-placeholder">
-        <span>Assistant is typing...</span>
+    <div class="chat-typing-row">
+        <div class="chat-msg-avatar">
+            <i class='bx bx-bot'></i>
+        </div>
+        <div class="chat-typing-bubble">
+            <span class="chat-typing-dot"></span>
+            <span class="chat-typing-dot"></span>
+            <span class="chat-typing-dot"></span>
+        </div>
     </div>
 }
 
 @code {
-    
-    
+    /// <summary>
+    /// Controls visibility.
+    /// When the parent sets this to true the three-dot animation appears;
+    /// when false the component renders nothing (no layout gap).
+    /// </summary>
     [Parameter]
     public bool IsVisible { get; set; }
 }

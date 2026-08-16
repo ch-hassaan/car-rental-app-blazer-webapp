@@ -1,0 +1,213 @@
+@using RentalBlazorApp.Models.AI
+
+@* ──────────────────────────────────────────────────────────
+   ChatBubble — renders one UiChatMessage as a styled bubble.
+
+   Props:
+     Message        – the UiChatMessage to render
+     OnRetry        – EventCallback<string> fired when the user
+                      clicks the retry button on an error bubble
+   ────────────────────────────────────────────────────────── *@
+
+<div class="chat-message-row @Message.Role">
+
+    @* Avatar dot (hidden for user on the left) *@
+    <div class="chat-msg-avatar">
+        @if (Message.Role == "user")
+        {
+            <i class='bx bx-user'></i>
+        }
+        else
+        {
+            <i class='bx bx-bot'></i>
+        }
+    </div>
+
+    <div class="chat-bubble-wrap">
+
+        @* The bubble itself *@
+        <div class="chat-bubble @GetBubbleClass()">
+            @((MarkupString)FormatContent(Message.Content))
+
+            @* Retry button appears only on error messages *@
+            @if (Message.IsError)
+            {
+                <div>
+                    <button class="chat-retry-btn"
+                            @onclick="HandleRetry"
+                            title="Retry sending this message">
+                        <i class='bx bx-refresh'></i> Try again
+                    </button>
+                </div>
+            }
+        </div>
+
+        @* Timestamp row *@
+        <div class="chat-bubble-meta">
+            <span>@FormatTime(Message.Timestamp)</span>
+            @if (Message.Role == "user")
+            {
+                <i class='bx bx-check-double' style="font-size:0.8rem; color: rgba(255,255,255,0.5);"></i>
+            }
+            else if (Message.Role == "ai" && !Message.IsError)
+            {
+                <button class="chat-speak-btn @(IsSpeaking ? "speaking" : "")"
+                        @onclick="HandleSpeak"
+                        title="@(IsSpeaking ? "Stop reading" : "Read aloud")"
+                        aria-label="Read message aloud">
+                    <i class="bx @(IsSpeaking ? "bx-volume-full" : "bx-volume-low")"></i>
+                </button>
+            }
+        </div>
+
+    </div>
+</div>
+
+@code {
+    // ── Parameters ──────────────────────────────────────────
+
+    /// <summary>The message data to render.</summary>
+    [Parameter, EditorRequired]
+    public UiChatMessage Message { get; set; } = default!;
+
+    /// <summary>
+    /// Fired when the user clicks "Try again" on an error bubble.
+    /// The string argument is Message.RetryPayload — the original user text.
+    /// </summary>
+    [Parameter]
+    public EventCallback<string> OnRetry { get; set; }
+
+    /// <summary>Fired when the user clicks the read-aloud speaker button.</summary>
+    [Parameter]
+    public EventCallback<UiChatMessage> OnSpeak { get; set; }
+
+    /// <summary>Whether this specific message is currently being read aloud.</summary>
+    [Parameter]
+    public bool IsSpeaking { get; set; }
+
+    private async Task HandleSpeak()
+    {
+        if (OnSpeak.HasDelegate)
+        {
+            await OnSpeak.InvokeAsync(Message);
+        }
+    }
+
+    // ── Helpers ─────────────────────────────────────────────
+
+    /// <summary>Returns the CSS modifier class for the bubble.</summary>
+    private string GetBubbleClass() => Message.Role switch
+    {
+        "user"  => "user",
+        "error" => "error",
+        _       => "ai"
+    };
+
+    /// <summary>
+    /// Very lightweight Markdown-to-HTML rendering.
+    /// Supports: **bold**, *italic*, `inline-code`, - lists, numbered lists.
+    /// Keeps the bundle small by avoiding a full Markdown library.
+    /// </summary>
+    private static string FormatContent(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return string.Empty;
+
+        var lines = raw.Split('\n');
+        var sb    = new System.Text.StringBuilder();
+
+        bool inList = false;
+        bool inOl   = false;
+
+        foreach (var rawLine in lines)
+        {
+            var line = rawLine.TrimEnd();
+
+            // Numbered list
+            if (System.Text.RegularExpressions.Regex.IsMatch(line, @"^\d+\.\s"))
+            {
+                if (!inOl)
+                {
+                    if (inList) { sb.Append("</ul>"); inList = false; }
+                    sb.Append("<ol>");
+                    inOl = true;
+                }
+                var content = System.Text.RegularExpressions.Regex.Replace(line, @"^\d+\.\s", "");
+                sb.Append($"<li>{InlineFormat(content)}</li>");
+                continue;
+            }
+
+            // Unordered list
+            if (line.StartsWith("- ") || line.StartsWith("* "))
+            {
+                if (!inList)
+                {
+                    if (inOl) { sb.Append("</ol>"); inOl = false; }
+                    sb.Append("<ul>");
+                    inList = true;
+                }
+                sb.Append($"<li>{InlineFormat(line[2..])}</li>");
+                continue;
+            }
+
+            // Close any open list
+            if (inList) { sb.Append("</ul>"); inList = false; }
+            if (inOl)   { sb.Append("</ol>"); inOl   = false; }
+
+            if (string.IsNullOrWhiteSpace(line))
+            {
+                sb.Append("<br/>");
+            }
+            else
+            {
+                sb.Append($"<p>{InlineFormat(line)}</p>");
+            }
+        }
+
+        if (inList) sb.Append("</ul>");
+        if (inOl)   sb.Append("</ol>");
+
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// Applies inline formatting: **bold**, *italic*, `code`.
+    /// Also escapes HTML to prevent injection before adding tags.
+    /// </summary>
+    private static string InlineFormat(string text)
+    {
+        // HTML-escape first
+        text = System.Net.WebUtility.HtmlEncode(text);
+
+        // **bold**
+        text = System.Text.RegularExpressions.Regex.Replace(
+            text, @"\*\*(.+?)\*\*", "<strong>$1</strong>");
+
+        // *italic*
+        text = System.Text.RegularExpressions.Regex.Replace(
+            text, @"\*(.+?)\*", "<em>$1</em>");
+
+        // `code`
+        text = System.Text.RegularExpressions.Regex.Replace(
+            text, @"`(.+?)`", "<code>$1</code>");
+
+        return text;
+    }
+
+    /// <summary>Formats a DateTime for the bubble timestamp.</summary>
+    private static string FormatTime(DateTime dt)
+    {
+        var now = DateTime.Now;
+        if (dt.Date == now.Date)
+            return dt.ToString("h:mm tt");
+        if (dt.Date == now.Date.AddDays(-1))
+            return $"Yesterday {dt:h:mm tt}";
+        return dt.ToString("MMM d, h:mm tt");
+    }
+
+    /// <summary>Fires the OnRetry callback with the stored retry payload.</summary>
+    private async Task HandleRetry()
+    {
+        if (!string.IsNullOrWhiteSpace(Message.RetryPayload))
+            await OnRetry.InvokeAsync(Message.RetryPayload);
+    }
+}
