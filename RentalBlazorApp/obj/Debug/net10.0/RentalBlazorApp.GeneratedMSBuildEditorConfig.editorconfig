@@ -19,165 +19,169 @@ build_property.TargetFrameworkIdentifier = .NETCoreApp
 build_property.TargetFrameworkVersion = v10.0
 build_property.RootNamespace = RentalBlazorApp
 build_property.RootNamespace = RentalBlazorApp
-build_property.ProjectDir = D:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\
+build_property.ProjectDir = d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\
 build_property.EnableComHosting = 
 build_property.EnableGeneratedComInterfaceComImportInterop = 
 build_property.RazorLangVersion = 10.0
 build_property.SupportLocalizedComponentNames = 
 build_property.GenerateRazorMetadataSourceChecksumAttributes = 
-build_property.MSBuildProjectDirectory = D:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp
+build_property.MSBuildProjectDirectory = d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp
 build_property._RazorSourceGeneratorDebug = 
 build_property.EffectiveAnalysisLevelStyle = 10.0
 build_property.EnableCodeStyleSeverity = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/AI/ChatMessage.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/AI/ChatBubble.razor]
+build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBSVxDaGF0QnViYmxlLnJhem9y
+build_metadata.AdditionalFiles.CssScope = 
+
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/AI/ChatMessage.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBSVxDaGF0TWVzc2FnZS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/AI/ChatWindow.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/AI/ChatWindow.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBSVxDaGF0V2luZG93LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/AI/TypingIndicator.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/AI/TypingIndicator.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBSVxUeXBpbmdJbmRpY2F0b3IucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/App.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/App.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xBcHAucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Layout/AdminLayout.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Layout/AdminLayout.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcQWRtaW5MYXlvdXQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Layout/EmptyLayout.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Layout/EmptyLayout.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcRW1wdHlMYXlvdXQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/About.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/About.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBYm91dC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Admin/AdminLogin.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Admin/AdminLogin.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxBZG1pbkxvZ2luLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Admin/Dashboard.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Admin/Dashboard.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxEYXNoYm9hcmQucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Admin/ManageBookings.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Admin/ManageBookings.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxNYW5hZ2VCb29raW5ncy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Admin/ManageCars.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Admin/ManageCars.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxNYW5hZ2VDYXJzLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Admin/ManageUsers.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Admin/ManageUsers.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xBZG1pblxNYW5hZ2VVc2Vycy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Bikes.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Bikes.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xCaWtlcy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/BookingForm.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/BookingForm.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xCb29raW5nRm9ybS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Categories.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Categories.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDYXRlZ29yaWVzLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/ChopperBikes.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/ChopperBikes.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDaG9wcGVyQmlrZXMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Contact.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Contact.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDb250YWN0LnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Convertibles.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Convertibles.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDb252ZXJ0aWJsZXMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Counter.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Counter.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDb3VudGVyLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Crossovers.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Crossovers.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xDcm9zc292ZXJzLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Electric.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Electric.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xFbGVjdHJpYy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Error.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Error.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xFcnJvci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Hatchbacks.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Hatchbacks.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xIYXRjaGJhY2tzLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Home.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Home.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xIb21lLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Login.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Login.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xMb2dpbi5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/LuxurySedans.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/LuxurySedans.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xMdXh1cnlTZWRhbnMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Minivans.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Minivans.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xNaW5pdmFucy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Opulence.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Opulence.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xPcHVsZW5jZS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Policy.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Policy.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xQb2xpY3kucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Register.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Register.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xSZWdpc3Rlci5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Suvs.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Suvs.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xTdXZzLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Weather.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Pages/Weather.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xQYWdlc1xXZWF0aGVyLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Routes.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Routes.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xSb3V0ZXMucmF6b3I=
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Shared/CarCard.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Shared/CarCard.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTaGFyZWRcQ2FyQ2FyZC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Shared/CategoryCard.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Shared/CategoryCard.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xTaGFyZWRcQ2F0ZWdvcnlDYXJkLnJhem9y
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/_Imports.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/_Imports.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xfSW1wb3J0cy5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = 
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Layout/MainLayout.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Layout/MainLayout.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcTWFpbkxheW91dC5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = b-559sdrh9bf
 
-[D:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Layout/NavMenu.razor]
+[d:/UNIVERSITY/PROJECTS/project rental website .net/RentalBlazorApp/Components/Layout/NavMenu.razor]
 build_metadata.AdditionalFiles.TargetPath = Q29tcG9uZW50c1xMYXlvdXRcTmF2TWVudS5yYXpvcg==
 build_metadata.AdditionalFiles.CssScope = b-ig20kueps2

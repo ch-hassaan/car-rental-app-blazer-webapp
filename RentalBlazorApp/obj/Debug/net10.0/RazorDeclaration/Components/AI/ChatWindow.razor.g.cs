@@ -19,12 +19,6 @@ using System.Net.Http
 #nullable disable
     ;
 #nullable restore
-#line (2,2)-(2,28) "d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\Components\_Imports.razor"
-using System.Net.Http.Json
-
-#nullable disable
-    ;
-#nullable restore
 #line (3,2)-(3,45) "d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\Components\_Imports.razor"
 using Microsoft.AspNetCore.Components.Forms
 
@@ -96,10 +90,37 @@ using RentalBlazorApp.Services
 
 #nullable disable
     ;
+#nullable restore
+#line (1,2)-(1,33) "d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\Components\AI\ChatWindow.razor"
+using RentalBlazorApp.Models.AI
+
+#nullable disable
+    ;
+#nullable restore
+#line (2,2)-(2,28) "d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\Components\AI\ChatWindow.razor"
+using System.Net.Http.Json
+
+#nullable disable
+    ;
+#nullable restore
+#line (3,2)-(3,24) "d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\Components\AI\ChatWindow.razor"
+using System.Text.Json
+
+#nullable disable
+    ;
     #line default
     #line hidden
+    [global::RentalBlazorApp.Components.AI.ChatWindow.__PrivateComponentRenderModeAttribute]
     #nullable restore
-    public partial class ChatWindow : global::Microsoft.AspNetCore.Components.ComponentBase
+    public partial class ChatWindow : global::Microsoft.AspNetCore.Components.ComponentBase, 
+#nullable restore
+#line (8,13)-(8,29) "d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\Components\AI\ChatWindow.razor"
+IAsyncDisposable
+
+#line default
+#line hidden
+#nullable disable
+
     #nullable disable
     {
         #pragma warning disable 1998
@@ -108,15 +129,582 @@ using RentalBlazorApp.Services
         }
         #pragma warning restore 1998
 #nullable restore
-#line (7,8)-(10,1) "d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\Components\AI\ChatWindow.razor"
+#line (220,8)-(730,1) "d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\Components\AI\ChatWindow.razor"
 
-    
-    
+    // ─────────────────────────────────────────────────────────
+    // State variables
+    // ─────────────────────────────────────────────────────────
+
+    /// <summary>Whether the chat panel is visible.</summary>
+    private bool _isOpen = false;
+
+    /// <summary>Whether the panel is in minimized (pill) mode.</summary>
+    private bool _isMinimized = false;
+
+    /// <summary>
+    /// True while the panel is playing its close animation.
+    /// Prevents immediate DOM removal so the CSS transition completes.
+    /// </summary>
+    private bool _isClosing = false;
+
+    /// <summary>True while an HTTP request to ChatController is in flight.</summary>
+    private bool _isLoading = false;
+
+    /// <summary>
+    /// True when there are AI replies and the panel is closed.
+    /// Drives the red notification badge on the FAB.
+    /// </summary>
+    private bool _hasUnread = false;
+
+    /// <summary>Shows the animated "Ask PDM AI anything!" tooltip for 5 s on first open.</summary>
+    private bool _showLabel = true;
+
+    /// <summary>Current text in the textarea, bound two-way via @bind.</summary>
+    private string _inputText = string.Empty;
+
+    /// <summary>
+    /// The complete list of UI messages for this session.
+    /// Kept in memory while the component lives (i.e. while the page is open).
+    /// </summary>
+    private readonly List<UiChatMessage> _messages = new();
+
+    /// <summary>
+    /// Session identifier sent to ChatController.SessionId.
+    /// Generated once per component instance so server-side conversation
+    /// context is scoped to this browser tab.
+    /// </summary>
+    private readonly string _sessionId = Guid.NewGuid().ToString();
+
+    /// <summary>ElementReference to the scrollable chat body div for JS scroll.</summary>
+    private ElementReference _chatBodyRef;
+
+    /// <summary>ElementReference to the invisible scroll anchor at the bottom.</summary>
+    private ElementReference _scrollAnchorRef;
+
+    /// <summary>ElementReference to the textarea for auto-focus.</summary>
+    private ElementReference _textareaRef;
+
+    /// <summary>Cancellation token source for the current outgoing HTTP request.</summary>
+    private CancellationTokenSource? _cts;
+
+    /// <summary>Suggestion chips shown in the welcome screen.</summary>
+    private readonly string[] _suggestions = new[]
+    {
+        "🚗 What cars are available?",
+        "💰 What's the daily rate?",
+        "📋 How do I book?",
+        "⚡ Show electric cars",
+    };
+
+    /// <summary>Whether microphone speech recognition is active.</summary>
+    private bool _isListening = false;
+
+    /// <summary>Whether auto-read voice mode is enabled.</summary>
+    private bool _isVoiceMode = false;
+
+    /// <summary>Message ID currently being spoken via TTS, or null.</summary>
+    private string? _speakingMessageId = null;
+
+    /// <summary>DotNetObjectReference passed to JS interop for callbacks.</summary>
+    private DotNetObjectReference<ChatWindow>? _dotNetRef;
+
+    // ─────────────────────────────────────────────────────────
+    // Computed properties
+    // ─────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// True when the send button / Enter key should be active.
+    /// Requires non-empty text AND no request in flight.
+    /// </summary>
+    private bool CanSend =>
+        !_isLoading && !string.IsNullOrWhiteSpace(_inputText) && _inputText.Length <= 1000;
+
+    // ─────────────────────────────────────────────────────────
+    // Lifecycle
+    // ─────────────────────────────────────────────────────────
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            _dotNetRef = DotNetObjectReference.Create(this);
+            // Hide the tooltip label after 5 s
+            _ = Task.Delay(5000).ContinueWith(_ =>
+            {
+                _showLabel = false;
+                InvokeAsync(StateHasChanged);
+            });
+        }
+
+        // Auto-scroll to anchor after every render that has messages
+        if (_isOpen && !_isMinimized)
+        {
+            await ScrollToBottomAsync();
+        }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Panel controls
+    // ─────────────────────────────────────────────────────────
+
+    /// <summary>Opens or closes the chat panel.</summary>
+    private async Task ToggleChat()
+    {
+        if (_isOpen)
+        {
+            await CloseChat();
+        }
+        else
+        {
+            _isOpen     = true;
+            _isMinimized = false;
+            _hasUnread   = false;
+            _showLabel   = false;
+            StateHasChanged();
+            // Auto-focus textarea after Blazor re-renders
+            await Task.Delay(80);
+            await FocusTextareaAsync();
+        }
+    }
+
+    /// <summary>Plays the close animation then hides the panel.</summary>
+    private async Task CloseChat()
+    {
+        _isClosing = true;
+        StateHasChanged();
+        await Task.Delay(250);   // matches panelSlideOut animation duration
+        _isOpen    = false;
+        _isClosing = false;
+        StateHasChanged();
+    }
+
+    /// <summary>Toggles minimized / expanded state.</summary>
+    private void ToggleMinimize()
+    {
+        _isMinimized = !_isMinimized;
+        if (!_isMinimized)
+        {
+            // Re-focus after expanding
+            _ = Task.Delay(60).ContinueWith(_ => InvokeAsync(FocusTextareaAsync));
+        }
+    }
+
+    /// <summary>Removes all UI messages and resets the server session.</summary>
+    private async Task ClearConversation()
+    {
+        _messages.Clear();
+        _inputText = string.Empty;
+        _isLoading = false;
+        _cts?.Cancel();
+        StateHasChanged();
+
+        // Ask the server to wipe the ConversationContext too (fire-and-forget)
+        try
+        {
+            var deleteUrl = Navigation.ToAbsoluteUri($"api/chat/session/{_sessionId}").ToString();
+            await Http.DeleteAsync(deleteUrl);
+        }
+        catch { /* non-critical */ }
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Message sending
+    // ─────────────────────────────────────────────────────────
+
+    /// <summary>Sends a suggestion chip as a user message.</summary>
+    private async Task SendChip(string text)
+    {
+        _inputText = text;
+        await SendMessage();
+    }
+
+    /// <summary>
+    /// Handles Enter / Shift+Enter key events inside the textarea.
+    /// Enter alone → send.  Shift+Enter → newline (default textarea behaviour).
+    /// </summary>
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter" && !e.ShiftKey)
+        {
+            // Prevent the newline from being inserted by the browser
+            if (CanSend) await SendMessage();
+        }
+    }
+
+    /// <summary>
+    /// Core send flow:
+    ///   1. Snapshot + clear the input.
+    ///   2. Append user bubble.
+    ///   3. Show typing indicator.
+    ///   4. POST to /api/chat/message.
+    ///   5. Append AI bubble or error bubble.
+    ///   6. Scroll to bottom.
+    /// </summary>
+    private async Task SendMessage()
+    {
+        if (!CanSend) return;
+
+        var userText = _inputText.Trim();
+        _inputText   = string.Empty;
+
+        // Append user's bubble immediately for perceived responsiveness
+        AddMessage("user", userText);
+
+        _isLoading = true;
+        StateHasChanged();
+        await ScrollToBottomAsync();
+
+        // Build the request
+        var request = new ChatRequest
+        {
+            SessionId = _sessionId,
+            Message   = userText
+        };
+
+        // Fresh cancellation token for this request
+        _cts?.Cancel();
+        _cts = new CancellationTokenSource(TimeSpan.FromSeconds(45));
+
+        try
+        {
+            var postUrl = Navigation.ToAbsoluteUri("api/chat/message").ToString();
+            var response = await Http.PostAsJsonAsync(postUrl, request, _cts.Token);
+
+            if (response.IsSuccessStatusCode)
+            {
+                var chatResponse = await response.Content.ReadFromJsonAsync<ChatResponse>(_cts.Token);
+
+                if (chatResponse?.IsSuccess == true && !string.IsNullOrWhiteSpace(chatResponse.Message))
+                {
+                    var aiMsg = AddMessage("ai", chatResponse.Message);
+                    _hasUnread = !_isOpen;
+                    if (_isVoiceMode)
+                    {
+                        await SpeakMessage(aiMsg);
+                    }
+                }
+                else
+                {
+                    AddErrorMessage(
+                        chatResponse?.ErrorMessage ?? "The assistant returned an empty response.",
+                        userText);
+                }
+            }
+            else
+            {
+                // Try to extract a friendly error from the JSON body
+                var friendlyError = await TryReadErrorAsync(response);
+                AddErrorMessage(friendlyError, userText);
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            AddErrorMessage("The request timed out. Please try again.", userText);
+        }
+        catch (HttpRequestException)
+        {
+            AddErrorMessage("Network error — please check your connection and try again.", userText);
+        }
+        catch (Exception ex)
+        {
+            AddErrorMessage($"Something went wrong: {ex.Message}", userText);
+        }
+        finally
+        {
+            _isLoading = false;
+            StateHasChanged();
+            await ScrollToBottomAsync();
+            await FocusTextareaAsync();
+        }
+    }
+
+    /// <summary>
+    /// Called by ChatBubble.OnRetry when the user clicks "Try again".
+    /// Re-populates the textarea and re-sends the message.
+    /// </summary>
+    private async Task RetryMessage(string originalText)
+    {
+        // Remove the error bubble
+        var errorMsg = _messages.LastOrDefault(m => m.IsError && m.RetryPayload == originalText);
+        if (errorMsg is not null) _messages.Remove(errorMsg);
+
+        _inputText = originalText;
+        await SendMessage();
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Message list helpers
+    // ─────────────────────────────────────────────────────────
+
+    /// <summary>Appends a normal user or AI message and returns it.</summary>
+    private UiChatMessage AddMessage(string role, string content)
+    {
+        var msg = new UiChatMessage
+        {
+            Role      = role,
+            Content   = content,
+            Timestamp = DateTime.Now
+        };
+        _messages.Add(msg);
+        return msg;
+    }
+
+    /// <summary>Appends a red error bubble with a retry payload.</summary>
+    private void AddErrorMessage(string content, string retryPayload)
+    {
+        _messages.Add(new UiChatMessage
+        {
+            Role         = "error",
+            Content      = $"⚠️ {content}",
+            Timestamp    = DateTime.Now,
+            IsError      = true,
+            RetryPayload = retryPayload
+        });
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // Voice & Speech controls
+    // ─────────────────────────────────────────────────────────
+
+    /// <summary>Toggles microphone speech recognition.</summary>
+    private async Task ToggleListening()
+    {
+        if (_isListening)
+        {
+            try { await JS.InvokeVoidAsync("pdmVoice.stopListening"); } catch { }
+            _isListening = false;
+        }
+        else
+        {
+            _dotNetRef ??= DotNetObjectReference.Create(this);
+            try
+            {
+                await JS.InvokeVoidAsync("pdmVoice.startListening", _dotNetRef);
+            }
+            catch { _isListening = false; }
+        }
+    }
+
+    /// <summary>Toggles hands-free voice mode (auto-reading AI responses).</summary>
+    private void ToggleVoiceMode()
+    {
+        _isVoiceMode = !_isVoiceMode;
+        if (!_isVoiceMode)
+        {
+            StopSpeaking();
+        }
+    }
+
+    /// <summary>Speaks the specified message using Text-to-Speech.</summary>
+    private async Task SpeakMessage(UiChatMessage msg)
+    {
+        if (string.IsNullOrWhiteSpace(msg.Content)) return;
+
+        if (_speakingMessageId == msg.Id.ToString())
+        {
+            StopSpeaking();
+        }
+        else
+        {
+            _dotNetRef ??= DotNetObjectReference.Create(this);
+            _speakingMessageId = msg.Id.ToString();
+            StateHasChanged();
+            try
+            {
+                await JS.InvokeVoidAsync("pdmVoice.speakText", msg.Content, msg.Id.ToString(), _dotNetRef);
+            }
+            catch { _speakingMessageId = null; }
+        }
+    }
+
+    /// <summary>Stops active speech playback.</summary>
+    private void StopSpeaking()
+    {
+        _speakingMessageId = null;
+        try { JS.InvokeVoidAsync("pdmVoice.stopSpeaking"); } catch { }
+        StateHasChanged();
+    }
+
+    [JSInvokable]
+    public void OnSpeechStarted()
+    {
+        _isListening = true;
+        InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public void OnSpeechResult(string transcript)
+    {
+        _inputText = transcript;
+        InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public void OnSpeechEnded()
+    {
+        _isListening = false;
+        InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public void OnSpeechError(string error)
+    {
+        _isListening = false;
+        InvokeAsync(StateHasChanged);
+    }
+
+    [JSInvokable]
+    public void OnSpeechFinished(string messageId)
+    {
+        if (_speakingMessageId == messageId)
+        {
+            _speakingMessageId = null;
+            InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            if (_isListening) await JS.InvokeVoidAsync("pdmVoice.stopListening");
+            await JS.InvokeVoidAsync("pdmVoice.stopSpeaking");
+        }
+        catch { }
+        _dotNetRef?.Dispose();
+    }
+
+    // ─────────────────────────────────────────────────────────
+    // UI helpers
+    // ─────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Returns the CSS class for the character counter.
+    /// warn  → approaching limit (900+)
+    /// limit → at or over limit
+    /// </summary>
+    private string GetCounterClass()
+    {
+        return _inputText.Length switch
+        {
+            >= 1000 => "limit",
+            >= 900  => "warn",
+            _       => string.Empty
+        };
+    }
+
+    /// <summary>
+    /// Scrolls the chat body to the bottom using JS interop.
+    /// Falls back silently if the element is not yet in the DOM.
+    /// </summary>
+    private async Task ScrollToBottomAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("pdmChatScrollToBottom", "chat-body");
+        }
+        catch { /* ignore during pre-render or DOM not ready */ }
+    }
+
+    /// <summary>Auto-focuses the textarea via JS.</summary>
+    private async Task FocusTextareaAsync()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("pdmChatFocus", "chat-textarea");
+        }
+        catch { }
+    }
+
+    /// <summary>
+    /// Attempts to deserialise a JSON error body from a non-2xx response.
+    /// Returns a human-readable string for all error scenarios.
+    /// </summary>
+    private static async Task<string> TryReadErrorAsync(HttpResponseMessage response)
+    {
+        try
+        {
+            var json    = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(json);
+            if (doc.RootElement.TryGetProperty("error", out var errProp))
+                return errProp.GetString() ?? "Unknown server error.";
+        }
+        catch { }
+
+        return response.StatusCode switch
+        {
+            System.Net.HttpStatusCode.ServiceUnavailable => "The AI service is temporarily unavailable. Please try again shortly.",
+            System.Net.HttpStatusCode.TooManyRequests    => "Too many requests — please wait a moment before trying again.",
+            System.Net.HttpStatusCode.BadRequest         => "Your message could not be processed. Please try rephrasing it.",
+            System.Net.HttpStatusCode.InternalServerError=> "A server error occurred. Please try again later.",
+            _                                            => $"Server returned {(int)response.StatusCode}. Please try again."
+        };
+    }
 
 #line default
 #line hidden
 #nullable disable
 
+        [global::Microsoft.AspNetCore.Components.InjectAttribute] private 
+#nullable restore
+#line (6,9)-(6,19) "d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\Components\AI\ChatWindow.razor"
+IJSRuntime
+
+#line default
+#line hidden
+#nullable disable
+         
+#nullable restore
+#line (6,20)-(6,22) "d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\Components\AI\ChatWindow.razor"
+JS
+
+#line default
+#line hidden
+#nullable disable
+         { get; set; }
+         = default!;
+        [global::Microsoft.AspNetCore.Components.InjectAttribute] private 
+#nullable restore
+#line (5,9)-(5,26) "d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\Components\AI\ChatWindow.razor"
+NavigationManager
+
+#line default
+#line hidden
+#nullable disable
+         
+#nullable restore
+#line (5,27)-(5,37) "d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\Components\AI\ChatWindow.razor"
+Navigation
+
+#line default
+#line hidden
+#nullable disable
+         { get; set; }
+         = default!;
+        [global::Microsoft.AspNetCore.Components.InjectAttribute] private 
+#nullable restore
+#line (4,9)-(4,19) "d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\Components\AI\ChatWindow.razor"
+HttpClient
+
+#line default
+#line hidden
+#nullable disable
+         
+#nullable restore
+#line (4,20)-(4,24) "d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\Components\AI\ChatWindow.razor"
+Http
+
+#line default
+#line hidden
+#nullable disable
+         { get; set; }
+         = default!;
+        private sealed class __PrivateComponentRenderModeAttribute : global::Microsoft.AspNetCore.Components.RenderModeAttribute
+        {
+            private static global::Microsoft.AspNetCore.Components.IComponentRenderMode ModeImpl => InteractiveServer
+            ;
+            public override global::Microsoft.AspNetCore.Components.IComponentRenderMode Mode => ModeImpl;
+        }
     }
 }
 #pragma warning restore 1591

@@ -22,7 +22,8 @@ Before publishing the code, configure your production secrets in the Azure Porta
 | Name | Value |
 |------|-------|
 | `ASPNETCORE_ENVIRONMENT` | `Production` |
-| `ConnectionStrings__DefaultConnection` | `Data Source=Data/pdmrentals.db` |
+| `ConnectionStrings__DefaultConnection` | `mongodb+srv://YOUR_USER:YOUR_PASSWORD@YOUR_CLUSTER.mongodb.net/?retryWrites=true&w=majority` |
+| `MongoDbSettings__DatabaseName` | `pdmrentals` |
 
 ### Supabase Settings
 | Name | Value |
@@ -77,7 +78,7 @@ Since Continuous Deployment is disabled, you can manually deploy the application
 ## 4. Verification
 
 1. Open a browser and visit: `https://pdm-rentals-app-2026.azurewebsites.net`
-2. **Database Verification**: The SQLite database will automatically be created in the `Data` folder and seeded with the initial cars and the Admin account on the first startup.
+2. **Database Verification**: Since we use MongoDB Atlas, the database and collections (`cars`, `users`, `bookings`) will be automatically created on your first startup and seeded with initial data.
 3. **AI Verification**: Try sending a message in the chat to confirm `Groq` environment variables are working.
 4. **Email & PDF Verification**: Try completing a booking to ensure the PDF is generated and emailed correctly.
 
@@ -92,6 +93,6 @@ If the application throws a 500 Internal Server Error, you can inspect the start
 4. View the real-time logs to see if a missing environment variable or connection string caused an error.
 
 ### Common Errors
-- **"HTTP Error 500.30 - ASP.NET Core app failed to start"**: Usually caused by a missing environment variable, causing a null reference during startup configuration.
-- **"Directory not found" / SQLite exceptions**: If you removed the directory creation code in `Program.cs`, SQLite cannot create its `.db` file because the `Data/` directory does not exist. (We fixed this in the deployment preparation!)
+- **"HTTP Error 500.30 - ASP.NET Core app failed to start"**: Usually caused by a missing environment variable (like the MongoDB connection string) or invalid credentials preventing the database connection.
+- **MongoDB Timeout Exception**: Ensure that you have whitelisted your Azure App Service's outbound IP addresses in MongoDB Atlas (Network Access), or simply allowed access from anywhere (`0.0.0.0/0`).
 - **"Connection Refused" (Email)**: Ensure you are using an App Password for Gmail, not your standard password, and that the SMTP port (`587`) matches your security settings.

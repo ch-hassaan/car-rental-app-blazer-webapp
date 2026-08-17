@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "d:\\UNIVERSITY\\PROJECTS\\project rental website .net\\RentalBlazorApp\\RentalBlazorApp.csproj": {}
+    "D:\\UNIVERSITY\\PROJECTS\\project rental website .net\\RentalBlazorApp\\RentalBlazorApp.csproj": {}
   },
   "projects": {
-    "d:\\UNIVERSITY\\PROJECTS\\project rental website .net\\RentalBlazorApp\\RentalBlazorApp.csproj": {
+    "D:\\UNIVERSITY\\PROJECTS\\project rental website .net\\RentalBlazorApp\\RentalBlazorApp.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "d:\\UNIVERSITY\\PROJECTS\\project rental website .net\\RentalBlazorApp\\RentalBlazorApp.csproj",
+        "projectUniqueName": "D:\\UNIVERSITY\\PROJECTS\\project rental website .net\\RentalBlazorApp\\RentalBlazorApp.csproj",
         "projectName": "RentalBlazorApp",
-        "projectPath": "d:\\UNIVERSITY\\PROJECTS\\project rental website .net\\RentalBlazorApp\\RentalBlazorApp.csproj",
+        "projectPath": "D:\\UNIVERSITY\\PROJECTS\\project rental website .net\\RentalBlazorApp\\RentalBlazorApp.csproj",
         "packagesPath": "C:\\Users\\hassa\\.nuget\\packages\\",
-        "outputPath": "d:\\UNIVERSITY\\PROJECTS\\project rental website .net\\RentalBlazorApp\\obj\\",
+        "outputPath": "D:\\UNIVERSITY\\PROJECTS\\project rental website .net\\RentalBlazorApp\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -56,6 +56,10 @@
               "target": "Package",
               "version": "[4.0.3, )"
             },
+            "MailKit": {
+              "target": "Package",
+              "version": "[4.17.0, )"
+            },
             "Microsoft.AspNetCore.App.Internal.Assets": {
               "suppressParent": "All",
               "target": "Package",
@@ -77,6 +81,10 @@
               "suppressParent": "All",
               "target": "Package",
               "version": "[10.0.8, )"
+            },
+            "QuestPDF": {
+              "target": "Package",
+              "version": "[2026.7.2, )"
             },
             "Supabase": {
               "target": "Package",

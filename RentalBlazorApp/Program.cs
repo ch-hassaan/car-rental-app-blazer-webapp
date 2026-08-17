@@ -20,9 +20,11 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 
+var mongoConnectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "mongodb://localhost:27017";
+var mongoDbName = builder.Configuration["MongoDbSettings:DatabaseName"] ?? "pdmrentals";
+
 builder.Services.AddDbContextFactory<AppDbContext>(opts =>
-    
-    opts.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    opts.UseMongoDB(mongoConnectionString, mongoDbName));
 
 
 var supabaseUrl = builder.Configuration["Supabase:Url"]!;
@@ -93,15 +95,9 @@ using (var scope = app.Services.CreateScope())
     
     var dbFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>();
 
-    // Ensure the Data directory exists for SQLite to create the db file in Azure App Service
-    var dbDir = Path.Combine(Directory.GetCurrentDirectory(), "Data");
-    if (!Directory.Exists(dbDir))
-    {
-        Directory.CreateDirectory(dbDir);
-    }
-
+    // For MongoDB, we can just ensure the database/collections are ready
     using (var ctx = dbFactory.CreateDbContext())
-        await ctx.Database.MigrateAsync();
+        await ctx.Database.EnsureCreatedAsync();
 
     
     var carSvc = scope.ServiceProvider.GetRequiredService<CarService>();

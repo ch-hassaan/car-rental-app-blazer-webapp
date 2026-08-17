@@ -96,6 +96,12 @@ using RentalBlazorApp.Services
 
 #nullable disable
     ;
+#nullable restore
+#line (1,2)-(1,33) "d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\Components\AI\TypingIndicator.razor"
+using RentalBlazorApp.Models.AI
+
+#nullable disable
+    ;
     #line default
     #line hidden
     #nullable restore
@@ -108,10 +114,13 @@ using RentalBlazorApp.Services
         }
         #pragma warning restore 1998
 #nullable restore
-#line (10,8)-(15,1) "d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\Components\AI\TypingIndicator.razor"
+#line (22,8)-(30,1) "d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\Components\AI\TypingIndicator.razor"
 
-    
-    
+    /// <summary>
+    /// Controls visibility.
+    /// When the parent sets this to true the three-dot animation appears;
+    /// when false the component renders nothing (no layout gap).
+    /// </summary>
     [Parameter]
     public bool IsVisible { get; set; }
 

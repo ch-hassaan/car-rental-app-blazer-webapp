@@ -107,15 +107,6 @@ using RentalBlazorApp.Services
         {
         }
         #pragma warning restore 1998
-#nullable restore
-#line (7,8)-(9,1) "d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\Components\AI\ChatMessage.razor"
-
-    
-
-#line default
-#line hidden
-#nullable disable
-
     }
 }
 #pragma warning restore 1591

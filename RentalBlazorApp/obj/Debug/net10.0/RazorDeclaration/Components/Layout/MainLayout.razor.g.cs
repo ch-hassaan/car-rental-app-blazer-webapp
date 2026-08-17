@@ -116,7 +116,7 @@ LayoutComponentBase
         }
         #pragma warning restore 1998
 #nullable restore
-#line (168,8)-(268,1) "d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\Components\Layout\MainLayout.razor"
+#line (171,8)-(271,1) "d:\UNIVERSITY\PROJECTS\project rental website .net\RentalBlazorApp\Components\Layout\MainLayout.razor"
 
     
     private string searchQuery = "";

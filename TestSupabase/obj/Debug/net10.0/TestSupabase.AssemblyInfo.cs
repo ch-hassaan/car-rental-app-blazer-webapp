@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("TestSupabase")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e5f6a30924d86ee722acbb49ffa55bed87f79d51")]
 [assembly: System.Reflection.AssemblyProductAttribute("TestSupabase")]
 [assembly: System.Reflection.AssemblyTitleAttribute("TestSupabase")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
