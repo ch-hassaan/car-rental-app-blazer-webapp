@@ -159,6 +159,15 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
+// Debug endpoint to verify configuration is loaded (remove after testing)
+app.MapGet("/debug-config", (IConfiguration cfg) => new {
+    GroqApiKeyPresent = !string.IsNullOrWhiteSpace(cfg["Groq:ApiKey"]),
+    GroqApiKeyLength  = cfg["Groq:ApiKey"]?.Length ?? 0,
+    GroqModel         = cfg["Groq:ModelName"],
+    GroqBaseUrl       = cfg["Groq:BaseUrl"],
+    MongoConnPresent  = !string.IsNullOrWhiteSpace(cfg.GetConnectionString("DefaultConnection"))
+});
+
 
 if (!app.Environment.IsDevelopment())
 {
