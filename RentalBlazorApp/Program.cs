@@ -93,61 +93,69 @@ var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
     
-    var dbFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>();
-
-    // For MongoDB, we can just ensure the database/collections are ready
-    using (var ctx = dbFactory.CreateDbContext())
-        await ctx.Database.EnsureCreatedAsync();
-
-    
-    var carSvc = scope.ServiceProvider.GetRequiredService<CarService>();
-    await carSvc.SeedCarsAsync();
-
-    
-    using var seedCtx = dbFactory.CreateDbContext();
-    
-    bool adminExists = await seedCtx.Users.AnyAsync(u => u.Email == "admin@pdmrentals.com");
-    if (!adminExists)
+    try 
     {
-        
-        var seedClient = new Supabase.Client(supabaseUrl, supabaseKey,
-            new SupabaseOptions { AutoRefreshToken = false, AutoConnectRealtime = false });
-        await seedClient.InitializeAsync();
+        var dbFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<AppDbContext>>();
 
-        Supabase.Gotrue.Session? session = null;
-
-        
-        try { session = await seedClient.Auth.SignUp("admin@pdmrentals.com", "Admin@123"); }
-        catch {  }
+        // For MongoDB, we can just ensure the database/collections are ready
+        using (var ctx = dbFactory.CreateDbContext())
+            await ctx.Database.EnsureCreatedAsync();
 
         
-        if (session?.User?.Id == null)
+        var carSvc = scope.ServiceProvider.GetRequiredService<CarService>();
+        await carSvc.SeedCarsAsync();
+
+        
+        using var seedCtx = dbFactory.CreateDbContext();
+        
+        bool adminExists = await seedCtx.Users.AnyAsync(u => u.Email == "admin@pdmrentals.com");
+        if (!adminExists)
         {
-            try { session = await seedClient.Auth.SignIn("admin@pdmrentals.com", "Admin@123"); }
+            
+            var seedClient = new Supabase.Client(supabaseUrl, supabaseKey,
+                new SupabaseOptions { AutoRefreshToken = false, AutoConnectRealtime = false });
+            await seedClient.InitializeAsync();
+
+            Supabase.Gotrue.Session? session = null;
+
+            
+            try { session = await seedClient.Auth.SignUp("admin@pdmrentals.com", "Admin@123"); }
             catch {  }
-        }
 
-        
-        if (session?.User?.Id != null)
-        {
             
-            seedCtx.Users.Add(new User
+            if (session?.User?.Id == null)
             {
-                Id        = session.User.Id, 
-                FullName  = "PDM Admin",
-                Email     = "admin@pdmrentals.com",
-                Role      = "Admin", 
-                CreatedAt = DateTime.UtcNow
-            });
+                try { session = await seedClient.Auth.SignIn("admin@pdmrentals.com", "Admin@123"); }
+                catch {  }
+            }
+
             
-            await seedCtx.SaveChangesAsync();
-            Console.WriteLine("[PDM] Admin user seeded successfully."); 
+            if (session?.User?.Id != null)
+            {
+                
+                seedCtx.Users.Add(new User
+                {
+                    Id        = session.User.Id, 
+                    FullName  = "PDM Admin",
+                    Email     = "admin@pdmrentals.com",
+                    Role      = "Admin", 
+                    CreatedAt = DateTime.UtcNow
+                });
+                
+                await seedCtx.SaveChangesAsync();
+                Console.WriteLine("[PDM] Admin user seeded successfully."); 
+            }
+            else
+            {
+                
+                Console.WriteLine("[PDM] WARNING: Could not seed admin — disable 'Confirm email' in Supabase Auth settings, then restart.");
+            }
         }
-        else
-        {
-            
-            Console.WriteLine("[PDM] WARNING: Could not seed admin — disable 'Confirm email' in Supabase Auth settings, then restart.");
-        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[STARTUP ERROR] {ex.Message}");
+        app.MapGet("/startup-error", () => ex.ToString());
     }
 }
 
