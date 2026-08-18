@@ -51,9 +51,9 @@ builder.Services.Configure<GroqSettings>(options =>
     {
         options.ApiKey = "gsk_" + "r8X5kXvYUezZm2ionEIwWGdyb3FYioOVeJYzNkPHSlrVGe3CONtm";
     }
-    if (string.IsNullOrWhiteSpace(options.ModelName))
+    if (string.IsNullOrWhiteSpace(options.ModelName) || options.ModelName.Contains("llama"))
     {
-        options.ModelName = "llama-3.1-8b-instant";
+        options.ModelName = "openai/gpt-oss-120b";
     }
     if (string.IsNullOrWhiteSpace(options.BaseUrl))
     {
@@ -70,6 +70,7 @@ builder.Services.AddHttpClient<IGroqService, GroqService>("GroqClient", (service
     client.BaseAddress = new Uri(settings.BaseUrl);
     client.DefaultRequestHeaders.Authorization =
         new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", settings.ApiKey);
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("RentalBlazorApp/1.0");
     client.Timeout = TimeSpan.FromSeconds(30);
 });
 
@@ -191,6 +192,7 @@ app.MapGet("/test-groq", async (Microsoft.Extensions.Options.IOptions<RentalBlaz
     using var client = new System.Net.Http.HttpClient();
     client.DefaultRequestHeaders.Authorization =
         new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
+    client.DefaultRequestHeaders.UserAgent.ParseAdd("RentalBlazorApp/1.0");
     client.Timeout = TimeSpan.FromSeconds(30);
 
     var body = System.Text.Json.JsonSerializer.Serialize(new {
