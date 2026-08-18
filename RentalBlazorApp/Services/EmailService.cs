@@ -82,9 +82,6 @@ public class EmailService : IEmailService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to send booking confirmation email to {Email} for Booking {BookingId}", booking.Email, booking.Id);
-            throw; // Re-throw to be handled by the caller, or just log and swallow depending on design.
-            // The requirement says: "Email failure must NOT corrupt or undo a successful booking. Log the email failure appropriately."
-            // So we will throw it here, and catch it in the component/BookingService caller.
         }
     }
 }

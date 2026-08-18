@@ -91,6 +91,14 @@
                 <EditForm Model="booking" OnValidSubmit="SubmitBooking">
                     <DataAnnotationsValidator />
 
+                    @if (!string.IsNullOrEmpty(submitError))
+                    {
+                        <div class="alert alert-danger mb-4" role="alert" style="border-radius: 12px; font-weight: 500;">
+                            <i class='bx bx-error-circle me-2'></i>
+                            @submitError
+                        </div>
+                    }
+
                     
                     <div class="booking-steps reveal">
                         <div class="booking-step active">
@@ -251,6 +259,7 @@
     private Booking booking = new() { Days = 1 }; 
     private bool formSubmitted = false; 
     private bool emailFailed = false;
+    private string submitError = "";
     private byte[]? generatedPdf = null;
 
     
@@ -296,35 +305,41 @@
     private async Task SubmitBooking()
     {
         if (car == null) return; 
+        submitError = "";
 
-        
-        booking.CarId = car.Id;
-        booking.CarName = car.Name;
-        booking.DailyRate = car.Price;
-        booking.TotalAmount = car.Price * booking.Days; 
-
-        
-        await BookingSvc.AddAsync(booking);
-        
-        try 
+        try
         {
-            generatedPdf = PdfService.GenerateBookingReceipt(booking);
-            await EmailService.SendBookingConfirmationAsync(booking, generatedPdf);
+            booking.CarId = car.Id;
+            booking.CarName = car.Name;
+            booking.DailyRate = car.Price;
+            booking.TotalAmount = car.Price * booking.Days; 
+
+            await BookingSvc.AddAsync(booking);
+            
+            try 
+            {
+                generatedPdf = PdfService.GenerateBookingReceipt(booking);
+                await EmailService.SendBookingConfirmationAsync(booking, generatedPdf);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[Email/PDF Error] {ex.Message}");
+                emailFailed = true;
+                
+                if (generatedPdf == null) 
+                {
+                    try { generatedPdf = PdfService.GenerateBookingReceipt(booking); }
+                    catch { /* Ignore if PDF also fails */ }
+                }
+            }
+            
+            formSubmitted = true;
         }
         catch (Exception ex)
         {
-            // Log exception here in a real app
-            Console.WriteLine($"[Email/PDF Error] {ex.Message}");
-            emailFailed = true;
-            
-            if (generatedPdf == null) 
-            {
-                try { generatedPdf = PdfService.GenerateBookingReceipt(booking); }
-                catch { /* Ignore if PDF also fails */ }
-            }
+            Console.WriteLine($"[Booking Submit Error] {ex}");
+            submitError = $"Booking error: {ex.Message}";
         }
-        
-        formSubmitted = true;
     }
 
     private async Task DownloadReceipt()
