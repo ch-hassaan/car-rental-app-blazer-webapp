@@ -200,8 +200,29 @@ app.MapGet("/test-groq", async (IConfiguration cfg) => {
     }
 });
 
+// List all available Groq models for this API key
+app.MapGet("/list-groq-models", async (IConfiguration cfg) => {
+    var apiKey  = cfg["Groq:ApiKey"] ?? "";
+    var baseUrl = cfg["Groq:BaseUrl"] ?? "https://api.groq.com/openai/v1/";
 
-if (!app.Environment.IsDevelopment())
+    using var client = new System.Net.Http.HttpClient();
+    client.DefaultRequestHeaders.Authorization =
+        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
+    client.Timeout = TimeSpan.FromSeconds(15);
+
+    try
+    {
+        var response = await client.GetAsync(baseUrl.TrimEnd('/') + "/models");
+        var raw = await response.Content.ReadAsStringAsync();
+        return Results.Ok(new { StatusCode = (int)response.StatusCode, Body = raw });
+    }
+    catch (Exception ex)
+    {
+        return Results.Ok(new { Error = ex.GetType().Name, Message = ex.Message });
+    }
+});
+
+
 {
     
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
