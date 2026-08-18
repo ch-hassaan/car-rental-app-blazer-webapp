@@ -168,6 +168,38 @@ app.MapGet("/debug-config", (IConfiguration cfg) => new {
     MongoConnPresent  = !string.IsNullOrWhiteSpace(cfg.GetConnectionString("DefaultConnection"))
 });
 
+// Debug endpoint: makes a real Groq API call and returns raw result or error
+app.MapGet("/test-groq", async (IConfiguration cfg) => {
+    var apiKey  = cfg["Groq:ApiKey"]  ?? "";
+    var baseUrl = cfg["Groq:BaseUrl"] ?? "https://api.groq.com/openai/v1/";
+    var model   = cfg["Groq:ModelName"] ?? "llama-3.1-8b-instant";
+
+    using var client = new System.Net.Http.HttpClient();
+    client.DefaultRequestHeaders.Authorization =
+        new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", apiKey);
+    client.Timeout = TimeSpan.FromSeconds(30);
+
+    var body = System.Text.Json.JsonSerializer.Serialize(new {
+        model,
+        messages = new[] { new { role = "user", content = "Say hello in one word." } },
+        max_tokens = 10
+    });
+
+    try
+    {
+        var response = await client.PostAsync(
+            baseUrl.TrimEnd('/') + "/chat/completions",
+            new System.Net.Http.StringContent(body, System.Text.Encoding.UTF8, "application/json"));
+
+        var raw = await response.Content.ReadAsStringAsync();
+        return Results.Ok(new { StatusCode = (int)response.StatusCode, Body = raw });
+    }
+    catch (Exception ex)
+    {
+        return Results.Ok(new { Error = ex.GetType().Name, Message = ex.Message });
+    }
+});
+
 
 if (!app.Environment.IsDevelopment())
 {
