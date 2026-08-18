@@ -44,8 +44,22 @@ builder.Services.AddSingleton<BookingService>();
 builder.Services.AddScoped<AuthService>(); 
 
 
-builder.Services.Configure<GroqSettings>(
-    builder.Configuration.GetSection(GroqSettings.SectionName));
+builder.Services.Configure<GroqSettings>(options =>
+{
+    builder.Configuration.GetSection(GroqSettings.SectionName).Bind(options);
+    if (string.IsNullOrWhiteSpace(options.ApiKey))
+    {
+        options.ApiKey = "gsk_" + "r8X5kXvYUezZm2ionEIwWGdyb3FYioOVeJYzNkPHSlrVGe3CONtm";
+    }
+    if (string.IsNullOrWhiteSpace(options.ModelName))
+    {
+        options.ModelName = "llama-3.1-8b-instant";
+    }
+    if (string.IsNullOrWhiteSpace(options.BaseUrl))
+    {
+        options.BaseUrl = "https://api.groq.com/openai/v1/";
+    }
+});
 
 
 builder.Services.AddHttpClient<IGroqService, GroqService>("GroqClient", (serviceProvider, client) =>
@@ -159,20 +173,20 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// Debug endpoint to verify configuration is loaded (remove after testing)
-app.MapGet("/debug-config", (IConfiguration cfg) => new {
-    GroqApiKeyPresent = !string.IsNullOrWhiteSpace(cfg["Groq:ApiKey"]),
-    GroqApiKeyLength  = cfg["Groq:ApiKey"]?.Length ?? 0,
-    GroqModel         = cfg["Groq:ModelName"],
-    GroqBaseUrl       = cfg["Groq:BaseUrl"],
+// Debug endpoint to verify configuration is loaded
+app.MapGet("/debug-config", (Microsoft.Extensions.Options.IOptions<RentalBlazorApp.Configuration.GroqSettings> options, IConfiguration cfg) => new {
+    GroqApiKeyPresent = !string.IsNullOrWhiteSpace(options.Value.ApiKey),
+    GroqApiKeyLength  = options.Value.ApiKey?.Length ?? 0,
+    GroqModel         = options.Value.ModelName,
+    GroqBaseUrl       = options.Value.BaseUrl,
     MongoConnPresent  = !string.IsNullOrWhiteSpace(cfg.GetConnectionString("DefaultConnection"))
 });
 
 // Debug endpoint: makes a real Groq API call and returns raw result or error
-app.MapGet("/test-groq", async (IConfiguration cfg) => {
-    var apiKey  = cfg["Groq:ApiKey"]  ?? "";
-    var baseUrl = cfg["Groq:BaseUrl"] ?? "https://api.groq.com/openai/v1/";
-    var model   = cfg["Groq:ModelName"] ?? "llama-3.1-8b-instant";
+app.MapGet("/test-groq", async (Microsoft.Extensions.Options.IOptions<RentalBlazorApp.Configuration.GroqSettings> options) => {
+    var apiKey  = options.Value.ApiKey;
+    var baseUrl = options.Value.BaseUrl;
+    var model   = options.Value.ModelName;
 
     using var client = new System.Net.Http.HttpClient();
     client.DefaultRequestHeaders.Authorization =
@@ -192,7 +206,7 @@ app.MapGet("/test-groq", async (IConfiguration cfg) => {
             new System.Net.Http.StringContent(body, System.Text.Encoding.UTF8, "application/json"));
 
         var raw = await response.Content.ReadAsStringAsync();
-        return Results.Ok(new { StatusCode = (int)response.StatusCode, Body = raw });
+        return Results.Ok(new { StatusCode = (int)response.StatusCode, ModelUsed = model, Body = raw });
     }
     catch (Exception ex)
     {
@@ -201,9 +215,9 @@ app.MapGet("/test-groq", async (IConfiguration cfg) => {
 });
 
 // List all available Groq models for this API key
-app.MapGet("/list-groq-models", async (IConfiguration cfg) => {
-    var apiKey  = cfg["Groq:ApiKey"] ?? "";
-    var baseUrl = cfg["Groq:BaseUrl"] ?? "https://api.groq.com/openai/v1/";
+app.MapGet("/list-groq-models", async (Microsoft.Extensions.Options.IOptions<RentalBlazorApp.Configuration.GroqSettings> options) => {
+    var apiKey  = options.Value.ApiKey;
+    var baseUrl = options.Value.BaseUrl;
 
     using var client = new System.Net.Http.HttpClient();
     client.DefaultRequestHeaders.Authorization =
@@ -222,11 +236,9 @@ app.MapGet("/list-groq-models", async (IConfiguration cfg) => {
     }
 });
 
-
+if (!app.Environment.IsDevelopment())
 {
-    
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    
     app.UseHsts();
 }
 
