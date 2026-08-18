@@ -78,8 +78,16 @@ builder.Services.AddHttpClient<IGroqService, GroqService>("GroqClient", (service
 builder.Services.AddScoped<IPromptService, PromptService>();
 builder.Services.AddScoped<IChatService, ChatService>();
 
-builder.Services.Configure<EmailSettings>(
-    builder.Configuration.GetSection("EmailSettings"));
+builder.Services.Configure<EmailSettings>(options =>
+{
+    builder.Configuration.GetSection("EmailSettings").Bind(options);
+    if (string.IsNullOrWhiteSpace(options.SmtpServer)) options.SmtpServer = "smtp.gmail.com";
+    if (options.SmtpPort == 0) options.SmtpPort = 587;
+    if (string.IsNullOrWhiteSpace(options.SenderEmail)) options.SenderEmail = "hassaannazir44@gmail.com";
+    if (string.IsNullOrWhiteSpace(options.SenderName)) options.SenderName = "PDM Rentals";
+    if (string.IsNullOrWhiteSpace(options.SmtpUsername)) options.SmtpUsername = "hassaannazir44@gmail.com";
+    if (string.IsNullOrWhiteSpace(options.SmtpPassword)) options.SmtpPassword = "nlnrxdsgnjbzzdty";
+});
 
 builder.Services.AddScoped<IPdfService, PdfService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -235,6 +243,28 @@ app.MapGet("/list-groq-models", async (Microsoft.Extensions.Options.IOptions<Ren
     catch (Exception ex)
     {
         return Results.Ok(new { Error = ex.GetType().Name, Message = ex.Message });
+    }
+});
+
+// Debug endpoint: sends a test email to verify live delivery
+app.MapGet("/test-email", async (IEmailService emailSvc) => {
+    try
+    {
+        var testBooking = new Booking {
+            FullName = "Test Customer",
+            Email = "hassaannazir44@gmail.com",
+            CarName = "Test Luxury Vehicle",
+            Days = 1,
+            DailyRate = 25000,
+            TotalAmount = 25000,
+            Status = BookingStatus.Pending
+        };
+        await emailSvc.SendBookingConfirmationAsync(testBooking);
+        return Results.Ok(new { Success = true, Message = "Test email sent successfully to hassaannazir44@gmail.com!" });
+    }
+    catch (Exception ex)
+    {
+        return Results.Ok(new { Success = false, Error = ex.GetType().Name, Message = ex.ToString() });
     }
 });
 

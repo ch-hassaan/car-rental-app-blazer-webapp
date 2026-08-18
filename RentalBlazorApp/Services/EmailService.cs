@@ -59,15 +59,16 @@ public class EmailService : IEmailService
             message.Body = builder.ToMessageBody();
 
             using var client = new SmtpClient();
+            client.ServerCertificateValidationCallback = (s, c, ch, e) => true;
+            client.CheckCertificateRevocation = false;
             
-            // For development, you might accept all SSL certs, but MailKit is strict by default.
             if (_emailSettings.SmtpServer == "localhost")
             {
                 await client.ConnectAsync(_emailSettings.SmtpServer, _emailSettings.SmtpPort, SecureSocketOptions.None);
             }
             else
             {
-                await client.ConnectAsync(_emailSettings.SmtpServer, _emailSettings.SmtpPort, SecureSocketOptions.StartTls);
+                await client.ConnectAsync(_emailSettings.SmtpServer, _emailSettings.SmtpPort, SecureSocketOptions.Auto);
                 if (!string.IsNullOrEmpty(_emailSettings.SmtpUsername))
                 {
                     await client.AuthenticateAsync(_emailSettings.SmtpUsername, _emailSettings.SmtpPassword);
